@@ -1,0 +1,6 @@
+local
+lib
+bin
+include
+.ropeproject
+*.pyc
