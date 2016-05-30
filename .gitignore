@@ -32,6 +32,11 @@ include
 .ropeproject
 
 
+### Node ###
+# Dependency directories
+node_modules
+
+
 ### Vim ###
 # swap
 [._]*.s[a-w][a-z]
@@ -43,3 +48,8 @@ Session.vim
 *~
 # auto-generated tag files
 tags
+
+### Build ##
+# auto generated file with webpack
+app/static/app.js
+app/static/app.css
