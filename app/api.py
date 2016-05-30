@@ -4,7 +4,7 @@
 Create an api for site
 """
 from app import app
-from app import sensors
+from models import sensors
 from flask_restful import Resource, Api, reqparse, abort
 from time import time
 
@@ -48,12 +48,7 @@ class TempList(Resource):
         args = parser.parse_args()
         sensor_id = args['id']
         task = {'temp': args['temp'], 'humidity': args['hum'], 'date': time()}
-        if sensor_id not in sensors:
-            sensors[sensor_id] = []
-        print(len(sensors[sensor_id]))
-        if len(sensors[sensor_id]) > 25:
-            sensors[sensor_id].pop(0)
-        sensors[sensor_id].append(task)
+        sensors[sensor_id] = task
         return sensors[sensor_id], 201
 
 api.add_resource(Temp, '/sensors/<string:sensor_id>')
