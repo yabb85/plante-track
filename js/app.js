@@ -33,8 +33,6 @@ var SensorGraph = React.createClass({
 		return {chart: null};
 	},
     componentDidMount: function() {
-		console.log(this.props.label);
-		console.log(this.props.data);
 		let chartCanvas = this.refs.chart;
 		let myChart = new Chart(chartCanvas, {
 			type: 'line',
@@ -95,10 +93,10 @@ var SensorGraph = React.createClass({
 
 		this.setState({chart: myChart});
     },
-	componentDidUpdate () {
+	componentDidUpdate: function () {
 		let chart = this.state.chart;
-		chart.data.datasets[0].data = this.props.temp;
-		chart.data.datasets[1].data = this.props.humidity;
+		chart.data.datasets[0].data = this.props.humidity;
+		chart.data.datasets[1].data = this.props.temp;
 		chart.data.labels = this.props.label;
 		chart.update();
 	},
@@ -121,7 +119,9 @@ var App = React.createClass({
 			labels: {},
 			temps: {},
 			hums: {},
-			sensor: "test", state:"list"};
+			sensor: "test",
+			state:"list"
+		};
 	},
 	componentDidMount: function() {
 		this.serverRequest = $.get("/sensors", function(data) {
@@ -130,7 +130,7 @@ var App = React.createClass({
 			let temps = {};
 			let humidity = {};
 			let idx = 0
-			for (sensor in data) {
+			for (let sensor in data) {
 				sensors.push(sensor);
 				labels[sensor] = []
 				temps[sensor] = []
@@ -150,6 +150,7 @@ var App = React.createClass({
 				labels: labels,
 				temps: temps,
 				hums: humidity,
+				sensor: this.state.sensor,
 				state:"list"
 			});
 		}.bind(this));
@@ -158,9 +159,9 @@ var App = React.createClass({
 		this.serverRequest.abort();
 	},
 	selectSensor: function(sensor) {
-		labels = this.state.labels
-		temps = this.state.temps
-		hums = this.state.hums
+		let labels = this.state.labels
+		let temps = this.state.temps
+		let hums = this.state.hums
 		this.setState({
 			labels: labels,
 			temps: temps,
