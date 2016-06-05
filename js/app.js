@@ -104,6 +104,7 @@ var SensorGraph = React.createClass({
         return (
             <div>
                 <canvas ref={'chart'} height="100" width="600"></canvas>
+				<button onClick={this.props.action}>Back</button>
             </div>
         );
     }
@@ -159,15 +160,24 @@ var App = React.createClass({
 		this.serverRequest.abort();
 	},
 	selectSensor: function(sensor) {
-		let labels = this.state.labels
-		let temps = this.state.temps
-		let hums = this.state.hums
 		this.setState({
-			labels: labels,
-			temps: temps,
-			hums: hums,
+			sensors: this.state.sensors,
+			labels: this.state.labels,
+			temps: this.state.temps,
+			hums: this.state.hums,
 			sensor: sensor,
-			state: "graph"});
+			state: "graph"
+		});
+	},
+	back: function() {
+		this.setState({
+			sensors: this.state.sensors,
+			labels: this.state.labels,
+			temps: this.state.temps,
+			hums: this.state.hums,
+			sensor: this.state.sensor,
+			state: "list"
+		});
 	},
 	render: function() {
 		if (this.state.state == "list") {
@@ -182,7 +192,8 @@ var App = React.createClass({
 					<SensorGraph
 						label={this.state.labels[this.state.sensor]}
 						temp={this.state.temps[this.state.sensor]}
-						humidity={this.state.hums[this.state.sensor]}/>
+						humidity={this.state.hums[this.state.sensor]}
+						action={this.back}/>
 					</div>
 				  );
 		}
