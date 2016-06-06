@@ -3,28 +3,43 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var $ = require('jquery');
 
+
 /* Sensor List */
+var SensorItem = React.createClass({
+	display: "SensorItem",
+	handleClick: function(e) {
+		console.log(e.target);
+		this.props.listSubmit(e.target.id);
+	},
+	render: function() {
+		let item = this.props.item;
+		let callback = this.props.callback;
+		return(
+			<div className="col-xs-4 col-sm-3 col-lg-2"id={item} onClick={this.handleClick}>
+				<div className="thumbnail tile tile-medium" id={item}>{item}</div>
+			</div>
+		);
+	}
+});
 
 var SensorList = React.createClass({
 	displayName: "SensorList",
-	handleClick: function(e) {
-		this.props.listSubmit(e.target.id);
-	},
 	render: function() {
 		var createItem = function(callback) {
 			return function(item) {
 				return(
-					<li key={item} id={item} onClick={callback}>
-						{item}
-					</li>
+					<SensorItem key={item} item={item} listSubmit={callback}/>
 				);
 			};
 		};
-		return(<ul>{this.props.items.map(createItem(this.handleClick))}</ul>);
+		return(
+			<div className="row list">
+				{this.props.items.map(createItem(this.props.listSubmit))}
+			</div>
+		);
 	}
 });
 
-var test = [65, 59, 80, 81, 56, 55, 40];
 
 /* Graph */
 var SensorGraph = React.createClass({
@@ -105,7 +120,7 @@ var SensorGraph = React.createClass({
     render: function() {
         return (
             <div>
-                <canvas ref={'chart'} height="100" width="600"></canvas>
+                <canvas ref={'chart'} width="600"></canvas>
             </div>
         );
     }
@@ -171,18 +186,18 @@ var App = React.createClass({
 	render: function() {
 		if (this.state.state == "list") {
 			return(
-					<div>
+				<div>
 					<SensorList listSubmit={this.selectSensor} items={this.state.sensors}/>
-					</div>
+				</div>
 				  );
 		} else {
 			return(
-					<div>
+				<div>
 					<SensorGraph
 						label={this.state.labels[this.state.sensor]}
 						temp={this.state.temps[this.state.sensor]}
 						humidity={this.state.hums[this.state.sensor]}/>
-					</div>
+				</div>
 				  );
 		}
 	}
