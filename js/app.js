@@ -4,13 +4,27 @@ var ReactDOM = require('react-dom');
 var $ = require('jquery');
 
 
-/* Sensor List */
-var SensorItem = React.createClass({
-	display: "SensorItem",
+/* Sensor Tile */
+var SensorTile = React.createClass({
+	displayName: "SensorTile",
 	handleClick: function(e) {
-		console.log(e.target);
-		this.props.listSubmit(e.target.id);
+		//console.log(e);
+		this.props.onClick(e.currentTarget.id);
 	},
+	render: function(e) {
+		return(
+				<div className="col-xs-4 col-sm-3 col-lg-2" key={this.props.children} id={this.props.children} onClick={this.handleClick}>
+					<div className="thumbnail">
+						{this.props.children}
+					</div>
+				</div>
+			  );
+	}
+});
+
+/* Sensor List */
+var SensorList = React.createClass({
+	displayName: "SensorList",
 	render: function() {
 		let item = this.props.item;
 		let callback = this.props.callback;
@@ -28,12 +42,12 @@ var SensorList = React.createClass({
 		var createItem = function(callback) {
 			return function(item) {
 				return(
-					<SensorItem key={item} item={item} listSubmit={callback}/>
+					<SensorTile key={item} onClick={callback}>{item}</SensorTile>
 				);
 			};
 		};
 		return(
-			<div className="row list">
+			<div className="row">
 				{this.props.items.map(createItem(this.props.listSubmit))}
 			</div>
 		);
@@ -153,7 +167,7 @@ var App = React.createClass({
 				humidity[sensor] = []
 				for (let element of data[sensor]) {
 					var unix_time = new Date(element.date*1000);
-					var date = unix_time.getDate()+"/"+unix_time.getMonth()+"/"+unix_time.getFullYear();
+					var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear();
 					date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds();
 					labels[sensor].push(date);
 					temps[sensor].push(parseInt(element.temp));
