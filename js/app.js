@@ -8,7 +8,6 @@ var $ = require('jquery');
 var SensorTile = React.createClass({
 	displayName: "SensorTile",
 	handleClick: function(e) {
-		//console.log(e);
 		this.props.onClick(e.currentTarget.id);
 	},
 	render: function(e) {
@@ -55,18 +54,65 @@ var SensorList = React.createClass({
 });
 
 
+function parse_sensor(data) {
+	var sensors = [];
+	let labels = {};
+	let temps = {};
+	let humidity = {};
+	let idx = 0
+		for (let sensor in data) {
+			sensors.push(sensor);
+			labels[sensor] = []
+				temps[sensor] = []
+				humidity[sensor] = []
+				for (let element of data[sensor]) {
+					var unix_time = new Date(element.date*1000);
+					var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear();
+					date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds();
+					labels[sensor].push(date);
+					temps[sensor].push(parseInt(element.temp));
+					humidity[sensor].push(parseInt(element.humidity));
+
+				}
+		}
+	return {
+		sensors: sensors,
+		labels: labels,
+		temps: temps,
+		humidity: humidity
+	}
+}
+
 /* Graph */
 var SensorGraph = React.createClass({
 	displayName: "SensorGraph",
 	getInitialState: function() {
-		return {chart: null};
+		return {
+			chart: null,
+			label: [],
+			humidity: [],
+			temp: []
+		};
+	},
+	reload: function() {
+		let url = "/sensors/"+this.props.name;
+		this.serverRequest = $.get(url, function(data) {
+			let result = parse_sensor(data);
+			let chartCanvas = this.refs.chart;
+			this.setState({
+				chart: this.state.chart,
+				label: result.labels[this.props.name],
+				temp: result.temps[this.props.name],
+				humidity: result.humidity[this.props.name]
+			});
+		}.bind(this));
 	},
     componentDidMount: function() {
 		let chartCanvas = this.refs.chart;
 		let myChart = new Chart(chartCanvas, {
 			type: 'line',
 			data: {
-				labels: this.props.label,
+				labels: this.state.label,
 				datasets:[{
 					label: 'Humidité',
 					fill: false,
@@ -79,7 +125,7 @@ var SensorGraph = React.createClass({
 					pointHitRadius: 10,
 					backgroundColor: "rgba(54, 162, 235, 0.4)",
 					borderColor: "#36A2EB",
-					data: []
+					data: this.state.humidity
 				},
 				{
 					label: 'Température',
@@ -93,7 +139,7 @@ var SensorGraph = React.createClass({
 					pointHitRadius: 10,
 					backgroundColor: "rgba(255, 99, 132, 0.4)",
 					borderColor: "#FF6384",
-					data: []
+					data: this.state.temp
 				}]
 			},
 			options: {
@@ -120,13 +166,19 @@ var SensorGraph = React.createClass({
 			}
 		});
 
-		this.setState({chart: myChart});
+		this.setState({
+			chart: myChart,
+			label: this.state.label,
+			humidity: this.state.humidity,
+			temp: this.state.temp
+		});
+		this.reload();
     },
 	componentDidUpdate: function () {
 		let chart = this.state.chart;
-		chart.data.datasets[0].data = this.props.humidity;
-		chart.data.datasets[1].data = this.props.temp;
-		chart.data.labels = this.props.label;
+		chart.data.datasets[0].data = this.state.humidity;
+		chart.data.datasets[1].data = this.state.temp;
+		chart.data.labels = this.state.label;
 		chart.update();
 	},
     render: function() {
@@ -134,6 +186,7 @@ var SensorGraph = React.createClass({
             <div>
                 <canvas ref={'chart'} height="100" width="600"></canvas>
 				<button onClick={this.props.action}>Back</button>
+				<button onClick={this.reload}>Reload</button>
             </div>
         );
     }
@@ -144,42 +197,18 @@ var SensorGraph = React.createClass({
 var App = React.createClass({
 	displayName: "Application",
 	getInitialState: function() {
+		/* initialize component */
 		return {
 			sensors: [],
-			labels: {},
-			temps: {},
-			hums: {},
 			sensor: "test",
 			state:"list"
 		};
 	},
 	componentDidMount: function() {
 		this.serverRequest = $.get("/sensors", function(data) {
-			var sensors = [];
-			let labels = {};
-			let temps = {};
-			let humidity = {};
-			let idx = 0
-			for (let sensor in data) {
-				sensors.push(sensor);
-				labels[sensor] = []
-				temps[sensor] = []
-				humidity[sensor] = []
-				for (let element of data[sensor]) {
-					var unix_time = new Date(element.date*1000);
-					var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear();
-					date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds();
-					labels[sensor].push(date);
-					temps[sensor].push(parseInt(element.temp));
-					humidity[sensor].push(parseInt(element.humidity));
-
-				}
-			}
+			var result = parse_sensor(data);
 			this.setState({
-				sensors: sensors,
-				labels: labels,
-				temps: temps,
-				hums: humidity,
+				sensors: result.sensors,
 				sensor: this.state.sensor,
 				state:"list"
 			});
@@ -191,9 +220,6 @@ var App = React.createClass({
 	selectSensor: function(sensor) {
 		this.setState({
 			sensors: this.state.sensors,
-			labels: this.state.labels,
-			temps: this.state.temps,
-			hums: this.state.hums,
 			sensor: sensor,
 			state: "graph"
 		});
@@ -201,14 +227,12 @@ var App = React.createClass({
 	back: function() {
 		this.setState({
 			sensors: this.state.sensors,
-			labels: this.state.labels,
-			temps: this.state.temps,
-			hums: this.state.hums,
 			sensor: this.state.sensor,
 			state: "list"
 		});
 	},
 	render: function() {
+		/* render function */
 		if (this.state.state == "list") {
 			return(
 				<div>
@@ -219,9 +243,7 @@ var App = React.createClass({
 			return(
 				<div>
 					<SensorGraph
-						label={this.state.labels[this.state.sensor]}
-						temp={this.state.temps[this.state.sensor]}
-						humidity={this.state.hums[this.state.sensor]}
+						name={this.state.sensor}
 						action={this.back}/>
 					</div>
 				  );
