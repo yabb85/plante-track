@@ -1,10 +1,11 @@
 import React from 'react';
+import Actions from '../actions/Action'
 
 /* Sensor Tile */
 var SensorTile = React.createClass({
 	displayName: "SensorTile",
 	handleClick: function(e) {
-		this.props.onClick(e.currentTarget.id);
+		Actions.selectSensor(e.currentTarget.id);
 	},
 	render: function(e) {
 		return(
