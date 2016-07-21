@@ -34,7 +34,7 @@ var SensorGraph = React.createClass({
         return (
             <div>
 				<div>
-					<span>Name</span>
+					<span>{this.props.params.name}</span>
 				</div>
                 <canvas ref={'chart'} height="100" width="600"></canvas>
 				<button onClick={this._onBack}>Back</button>
