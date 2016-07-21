@@ -54,7 +54,7 @@ function parseSensor(data) {
 /*
  * Creer un Graph a l'aide de CharJS
  */
-function loadGraph(chartCanvas) {
+function loadGraph(chartCanvas, name) {
 	let myChart = new Chart(chartCanvas, {
 		type: 'line',
 		data: {
@@ -112,12 +112,12 @@ function loadGraph(chartCanvas) {
 		}
 	});
 	_graph_data.chart = myChart;
-	let url = "/sensors/"+_sensorList.sensor;
+	let url = "/sensors/"+name;
     return $.get(url, function(data) {
 		let result = parseSensor(data);
-		_graph_data.label = result.labels[_sensorList.sensor];
-		_graph_data.temp = result.temps[_sensorList.sensor];
-		_graph_data.humidity = result.humidity[_sensorList.sensor];
+		_graph_data.label = result.labels[name];
+		_graph_data.temp = result.temps[name];
+		_graph_data.humidity = result.humidity[name];
         Store.emitChange();
     });
 }
@@ -125,26 +125,21 @@ function loadGraph(chartCanvas) {
 /*
  * Remet a jour les donnés du graph
  */
-function updateGraph() {
-	let url = "/sensors/"+_sensorList.sensor;
+function updateGraph(name) {
+	let url = "/sensors/"+name;
     return $.get(url, function(data) {
 		let result = parseSensor(data);
-		_graph_data.label = result.labels[_sensorList.sensor];
-		_graph_data.temp = result.temps[_sensorList.sensor];
-		_graph_data.humidity = result.humidity[_sensorList.sensor];
+		_graph_data.label = result.labels[name];
+		_graph_data.temp = result.temps[name];
+		_graph_data.humidity = result.humidity[name];
         Store.emitChange();
     });
 }
 
 /*
- * Met a jour le capteur courant
+ * Permet de revenir a la vue liste
+ * remet a jour le type de vue dans le store sensorList
  */
-function selectSensor(value) {
-	_sensorList.sensor = value;
-	_sensorList.state = 'graph';
-}
-
-
 function backSensor() {
 	_sensorList.state = 'list';
 }
@@ -166,7 +161,7 @@ var Store = Object.assign({}, EventEmitter.prototype, {
         return _graph_data;
     },
 
-	getCurrentSensor: function() {
+	getSensorList: function() {
 		return _sensorList;
 	},
 
@@ -187,23 +182,19 @@ Dispatcher.register(function(payload) {
 
     switch(payload.action.actionType) {
         case Constants.UPDATE_GRAPH:
-            updateGraph();
+            updateGraph(payload.action.name);
             break;
 
         case Constants.LOAD_GRAPH:
-            loadGraph(payload.action.canvas);
+            loadGraph(payload.action.canvas, payload.action.name);
             break;
-
-		case Constants.SELECT_SENSOR:
-			selectSensor(payload.action.sensor);
-			break;
 
 		case Constants.BACK_SENSOR:
 			backSensor();
 			break;
 
 		case Constants.LOAD_SENSOR_LIST:
-			loadSensorList();
+			loadSensorList(payload.action.name);
 			break;
 
         default:

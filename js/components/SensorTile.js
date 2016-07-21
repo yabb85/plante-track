@@ -1,11 +1,14 @@
 import React from 'react';
-import Actions from '../actions/Action'
 
 /* Sensor Tile */
 var SensorTile = React.createClass({
 	displayName: "SensorTile",
+	contextTypes: {
+		router: React.PropTypes.object
+	},
 	handleClick: function(e) {
-		Actions.selectSensor(e.currentTarget.id);
+		const path = '/graph/' + e.currentTarget.id
+		this.context.router.push(path)
 	},
 	render: function(e) {
 		return(

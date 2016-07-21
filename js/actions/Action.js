@@ -2,25 +2,20 @@ import Dispatcher from '../dispatchers/Dispatcher';
 import Constants from '../constants/Constants';
 
 var Actions = {
-    loadGraph: function(new_canvas) {
+    loadGraph: function(new_canvas, name) {
         Dispatcher.handleGraphAction({
             actionType: Constants.LOAD_GRAPH,
-			canvas: new_canvas
+			canvas: new_canvas,
+			name: name
         });
     },
 
-    updateGraph: function() {
+    updateGraph: function(name) {
         Dispatcher.handleGraphAction({
-            actionType: Constants.UPDATE_GRAPH
+            actionType: Constants.UPDATE_GRAPH,
+			name: name
         });
     },
-
-	selectSensor: function(newSensor) {
-		Dispatcher.handleGraphAction({
-			actionType: Constants.SELECT_SENSOR,
-			sensor: newSensor
-		});
-	},
 
 	backSensor: function() {
 		Dispatcher.handleGraphAction({
@@ -28,7 +23,7 @@ var Actions = {
 		});
 	},
 
-	loadSensorList: function() {
+	loadSensorList: function(name) {
 		Dispatcher.handleGraphAction({
 			actionType: Constants.LOAD_SENSOR_LIST
 		});

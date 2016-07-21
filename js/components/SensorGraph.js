@@ -27,24 +27,33 @@ var SensorGraph = React.createClass({
 		chart.data.labels = this.state.label;
 		chart.update();
 	},
+	componentWillUnmount: function() {
+		Store.removeChangeListener(this._onChange);
+	},
     render: function() {
         return (
             <div>
+				<div>
+					<span>Name</span>
+				</div>
                 <canvas ref={'chart'} height="100" width="600"></canvas>
 				<button onClick={this._onBack}>Back</button>
 				<button onClick={this._onUpdate}>Reload</button>
             </div>
         );
     },
+	contextTypes: {
+		router: React.PropTypes.object
+	},
 	_onUpdate: function() {
-		Actions.updateGraph();
+		Actions.updateGraph(this.props.params.name);
 	},
 	_onInit: function(canvas) {
-		Actions.loadGraph(canvas);
+		Actions.loadGraph(canvas, this.props.params.name);
 	},
 	_onBack: function() {
 		Store.removeChangeListener(this._onChange);
-		Actions.backSensor();
+		this.context.router.push('/')
 	},
 	_onChange: function() {
 		this.setState(getGraphState());
