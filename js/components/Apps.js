@@ -10,6 +10,7 @@ var App = React.createClass({
 	render: function() {
 		/* render function */
 		return(
+			/* use router to display list or graph */
 			<Router history={browserHistory}>
 				<Route path='/' component={SensorList}/>
 				<Route path='/graph/:name' component={SensorGraph}/>

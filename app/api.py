@@ -4,7 +4,7 @@
 Create an api for site
 """
 from app import app
-from models import sensors
+from app.models import sensors
 from flask_restful import Resource, Api, reqparse, abort
 from time import time
 
@@ -16,40 +16,58 @@ def abort_if_sensor_doesnt_exist(sensor_id):
     if sensor_id not in sensors:
         abort(404, message="Sensor {} doesn't exist".format(sensor_id))
 
-parser = reqparse.RequestParser()
-parser.add_argument('id')
-parser.add_argument('temp')
-parser.add_argument('hum')
 
-
-class Temp(Resource):
+class Sensor(Resource):
     """
     add method to see data of sensor
     """
+    def __init__(self):
+        """docstring for __init__"""
+        self.put_parser = reqparse.RequestParser()
+        self.put_parser.add_argument('temp')
+        self.put_parser.add_argument('humidity')
+
     def get(self, sensor_id):
         """return measures for one sensor"""
-        abort_if_sensor_doesnt_exist(sensor_id)
-        return {sensor_id: sensors[sensor_id]}
+        return sensors.get_sensor(sensor_id)
+
+    def patch(self, sensor_id):
+        """docstring for patch"""
+        args = self.put_parser.parse_args()
+        temp = args['temp']
+        humidity = args['humidity']
+        return sensors.add_measure(sensor_id, temp, humidity, time())
 
     def delete(self, sensor_id):
         """remove one sensor"""
-        abort_if_sensor_doesnt_exist(sensor_id)
-        del sensors[sensor_id]
+        sensors.delete_sensor(sensor_id)
         return '', 204
 
 
-class TempList(Resource):
+class SensorList(Resource):
+    """
+    add method to see list of sensors
+    """
+    def __init__(self):
+        """docstring for __init__"""
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument('name')
+        self.parser.add_argument('mac')
+        self.parser.add_argument('description')
+        self.parser.add_argument('type')
+
     def get(self):
         """return list of measures for all sensors"""
-        return sensors
+        return sensors.get_sensors()
 
     def post(self):
-        """append measure for one sensors"""
-        args = parser.parse_args()
-        sensor_id = args['id']
-        task = {'temp': args['temp'], 'humidity': args['hum'], 'date': time()}
-        sensors[sensor_id] = task
-        return sensors[sensor_id], 201
+        """add new sensor"""
+        args = self.parser.parse_args()
+        name = args['name']
+        mac = args['mac']
+        description = args['description']
+        plant_type = args['type']
+        return sensors.add_sensor(name, mac, description, plant_type)
 
-api.add_resource(Temp, '/sensors/<string:sensor_id>')
-api.add_resource(TempList, '/sensors')
+api.add_resource(Sensor, '/sensors/<string:sensor_id>')
+api.add_resource(SensorList, '/sensors')

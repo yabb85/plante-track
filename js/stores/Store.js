@@ -27,27 +27,40 @@ function parseSensor(data) {
 	let labels = {};
 	let temps = {};
 	let humidity = {};
-	let idx = 0
-		for (let sensor in data) {
-			sensors.push(sensor);
-			labels[sensor] = []
-				temps[sensor] = []
-				humidity[sensor] = []
-				for (let element of data[sensor]) {
-					var unix_time = new Date(element.date*1000);
-					var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear();
-					date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds();
-					labels[sensor].push(date);
-					temps[sensor].push(parseInt(element.temp));
-					humidity[sensor].push(parseInt(element.humidity));
-
-				}
+	let idx = 0;
+	for (let sensor in data) {
+		console.log(sensor);
+		sensors.push(sensor);
+		labels[sensor] = [];
+		temps[sensor] = [];
+		humidity[sensor] = [];
+		console.log(data[sensor]);
+		for (let element of data[sensor]['stats']) {
+			console.log(element);
+			var unix_time = new Date(element.date*1000);
+			var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear();
+			date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds();
+			labels[sensor].push(date);
+			temps[sensor].push(parseInt(element.temperature));
+			humidity[sensor].push(parseInt(element.humidity));
 		}
+	}
 	return {
 		sensors: sensors,
 		labels: labels,
 		temps: temps,
 		humidity: humidity
+	}
+}
+
+function parseSensorList(data) {
+	var sensors = [];
+	let idx = 0;
+	for (let sensor in data) {
+		sensors.push(sensor);
+	}
+	return {
+		sensors: sensors
 	}
 }
 
@@ -147,7 +160,7 @@ function backSensor() {
 function loadSensorList() {
 	let url = "/sensors";
     return $.get(url, function(data) {
-		let result = parseSensor(data);
+		let result = parseSensorList(data);
 		_sensorList.sensors = result.sensors;
 		_sensorList.state = 'list';
         Store.emitChange();
