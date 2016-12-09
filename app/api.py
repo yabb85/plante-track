@@ -23,17 +23,17 @@ class Sensor(Resource):
     """
     def __init__(self):
         """docstring for __init__"""
-        self.put_parser = reqparse.RequestParser()
-        self.put_parser.add_argument('temp')
-        self.put_parser.add_argument('humidity')
+        self.post_parser = reqparse.RequestParser()
+        self.post_parser.add_argument('temp')
+        self.post_parser.add_argument('humidity')
 
     def get(self, sensor_id):
         """return measures for one sensor"""
         return sensors.get_sensor(sensor_id)
 
-    def patch(self, sensor_id):
+    def post(self, sensor_id):
         """docstring for patch"""
-        args = self.put_parser.parse_args()
+        args = self.post_parser.parse_args()
         temp = args['temp']
         humidity = args['humidity']
         return sensors.add_measure(sensor_id, temp, humidity, time())
