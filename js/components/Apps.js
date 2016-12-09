@@ -1,7 +1,8 @@
 import React from 'react';
-import { Router, Route, browserHistory, IndexRoute } from 'react-router'
+import { Router, Route, hashHistory, IndexRoute } from 'react-router'
 import SensorList from './SensorList'
 import SensorGraph from './SensorGraph'
+import SensorForm from './SensorForm'
 
 
 /* Application */
@@ -11,9 +12,10 @@ var App = React.createClass({
 		/* render function */
 		return(
 			/* use router to display list or graph */
-			<Router history={browserHistory}>
+			<Router history={hashHistory}>
 				<Route path='/' component={SensorList}/>
 				<Route path='/graph/:name' component={SensorGraph}/>
+				<Route path='/add_sensor' component={SensorForm}/>
 			</Router>
 		);
 	}

@@ -8,6 +8,8 @@ var CHANGE_EVENT = 'change';
 
 var _graph_data = {
 	chart: null,
+	type: '',
+	description: '',
 	label: [],
 	humidity: [],
 	temp: []
@@ -27,6 +29,8 @@ function parseSensor(data) {
 	let labels = {};
 	let temps = {};
 	let humidity = {};
+	let type = {};
+	let description = {};
 	let idx = 0;
 	for (let sensor in data) {
 		console.log(sensor);
@@ -34,7 +38,8 @@ function parseSensor(data) {
 		labels[sensor] = [];
 		temps[sensor] = [];
 		humidity[sensor] = [];
-		console.log(data[sensor]);
+		type[sensor] = data[sensor]['type']
+		description[sensor] = data[sensor]['description']
 		for (let element of data[sensor]['stats']) {
 			console.log(element);
 			var unix_time = new Date(element.date*1000);
@@ -46,6 +51,8 @@ function parseSensor(data) {
 		}
 	}
 	return {
+		type: type,
+		description: description,
 		sensors: sensors,
 		labels: labels,
 		temps: temps,
@@ -128,6 +135,8 @@ function loadGraph(chartCanvas, name) {
 	let url = "/sensors/"+name;
     return $.get(url, function(data) {
 		let result = parseSensor(data);
+		_graph_data.type = result.type[name];
+		_graph_data.description = result.description[name];
 		_graph_data.label = result.labels[name];
 		_graph_data.temp = result.temps[name];
 		_graph_data.humidity = result.humidity[name];
