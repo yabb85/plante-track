@@ -4,7 +4,8 @@
   "description": "",
   "main": "webpack.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "webpack --config webpack.config.js",
+    "deploy": "NODE_ENV=production webpack -p --config webpack.config.prod.js"
   },
   "repository": {
     "type": "git",
@@ -27,12 +28,12 @@
   },
   "dependencies": {
     "chart.js": "^2.1.4",
+    "flux": "^2.1.1",
     "jquery": "^2.2.4",
+    "keymirror": "^0.1.1",
     "react": "^15.1.0",
-    "react-dom": "^15.1.0"
-  },
-  "scripts": {
-	"dev": "webpack --config webpack.config.js",
-	"deploy": "NODE_ENV=production webpack -p --config webpack.config.prod.js"
+    "react-dom": "^15.1.0",
+    "react-dropzone": "^3.5.3",
+    "react-router": "^2.6.0"
   }
 }

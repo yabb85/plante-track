@@ -1,14 +1,15 @@
 #! /usr/bin/python
 # -*- coding:utf-8 -*-
+"""
+Initialisation package
+"""
 
 from logging import DEBUG
 from logging import getLogger
 from flask import Flask
 from logging.handlers import RotatingFileHandler
+from app.models import sensors
 
-"""
-Initialisation package
-"""
 app = Flask(__name__)
 app.secret_key = 'plante website'
 
@@ -19,6 +20,12 @@ app.logger.addHandler(handler)
 logger = getLogger('werkzeug')
 logger.addHandler(handler)
 
-sensors = {}
+
+@app.cli.command()
+def initdb():
+    """Initialize the database."""
+    sensors.install()
+    print u'Init the db'
+
 
 from app import api, views
