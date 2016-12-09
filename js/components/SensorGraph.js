@@ -33,12 +33,26 @@ var SensorGraph = React.createClass({
     render: function() {
         return (
             <div>
-				<div>
-					<span>{this.props.params.name}</span>
+				<div className="row">
+					<div className="col-md-5">
+						<span>{this.props.params.name}</span>
+					</div>
+					<div className="col-md-7">
+						<div className="row">
+							<div className="col-md-7">
+								<span>{this.state.type}</span>
+							</div>
+							<div className="col-md-7">
+								<span>{this.state.description}</span>
+							</div>
+						</div>
+					</div>
 				</div>
-                <canvas ref={'chart'} height="100" width="600"></canvas>
-				<button onClick={this._onBack}>Back</button>
-				<button onClick={this._onUpdate}>Reload</button>
+				<div className="row">
+					<canvas ref={'chart'} height="100" width="600"></canvas>
+					<button onClick={this._onBack}>Back</button>
+					<button onClick={this._onUpdate}>Reload</button>
+				</div>
             </div>
         );
     },
