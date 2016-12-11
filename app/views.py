@@ -1,11 +1,15 @@
 #! /usr/bin/python
 # -*- coding:utf-8 -*-
 
-from app import app
+from flask import Blueprint
 from flask import render_template
 
 
-@app.route('/')
+simple_page = Blueprint('simple_page', __name__)
+
+@simple_page.route('/')
 def index():
-    """Display the main page"""
+    """
+    Display the main page
+    """
     return render_template('layout.html')

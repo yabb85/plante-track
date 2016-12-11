@@ -2,130 +2,71 @@
 # -*- coding:utf-8 -*-
 
 """
-Connect to sqlite database
+Representation of database
 """
 
-import sqlite3
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
+from sqlalchemy import event
+from sqlalchemy import DDL
+from uuid import uuid4
 
 
-DATABASE = 'database.db'
+DATA_BASE = SQLAlchemy()
 
 
-class Sensors(object):
-    """Collection of sensors"""
-    def __init__(self, *args):
-        """
-        Initialize collection of sensors
-        """
-        self.conn_uri = 'database.db'
+class Sensor(DATA_BASE.Model):
+    """
+    Interface of sensors table
+    """
+    __tablename__ = 'sensors'
+    id = Column(String(35), primary_key=True, unique=True)
+    name = Column(String(50))
+    mac = Column(String(16))
+    description = Column(Text())
+    type = Column(String(100))
 
-    def install(self):
-        """
-        Create database with schema.sql
-        """
-        with open('schema.sql', mode='r') as sql_file:
-            conn = sqlite3.connect(self.conn_uri)
-            conn.executescript(sql_file.read())
-
-    def add_sensor(self, name, mac, description, plant_type):
-        """
-        Add new sensor in database
-        """
-        query = 'INSERT INTO sensors (name, mac, description, type) ' \
-            'VALUES (?,?,?,?);'
-        conn = sqlite3.connect(self.conn_uri)
-        cursor = conn.cursor()
-        cursor.execute(query, [name, mac, description, plant_type])
-        conn.commit()
-        cursor.execute('SELECT * FROM sensors WHERE id=?', [cursor.lastrowid])
-        row = cursor.fetchone()
-        conn.close()
-        result = {'name': row[1],
-                  'mac': row[2],
-                  'description': row[3],
-                  'type': row[4]}
-        return result
-
-    def get_sensors(self):
-        """docstring for get_sensors"""
-        result = {}
-        query = 'SELECT * FROM sensors;'
-        conn = sqlite3.connect(self.conn_uri)
-        cursor = conn.cursor()
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        for row in rows:
-            print row
-            result[row[1]] = {'mac': row[2],
-                              'description': row[3],
-                              'type': row[4]}
-        conn.close()
-        return result
-
-    def get_sensor(self, sensor_name):
-        """docstring for get_sensors"""
-        result = {}
-        query = 'SELECT * FROM sensors INNER JOIN stats ' \
-            'ON sensors.id = stats.id_sensor WHERE sensors.name=?;'
-        conn = sqlite3.connect(self.conn_uri)
-        cursor = conn.cursor()
-        cursor.execute(query, [sensor_name])
-        rows = cursor.fetchall()
-        for row in rows:
-            print row
-            if row[1] in result:
-                result[row[1]]['stats'].append({
-                    'temperature': row[7],
-                    'humidity': row[8],
-                    'date': row[9]
-                })
-            else:
-                result[row[1]] = {
-                    'mac': row[2],
-                    'description': row[3],
-                    'type': row[4],
-                    'stats': [
-                        {
-                            'temperature': row[7],
-                            'humidity': row[8],
-                            'date': row[9]
-                        }]
-                }
-        conn.close()
-        return result
-
-    def delete_sensor(self, sensor_name):
-        """
-        docstring for delete_sensor
-        """
-        #TODO: finir de supprimer les entrée dans la table stats
-        query = 'DELETE FROM sensors WHERE name=?;'
-        conn = sqlite3.connect(self.conn_uri)
-        cursor = conn.cursor()
-        cursor.execute(query, [sensor_name])
-        conn.commit()
-        conn.close()
-
-    def add_measure(self, sensor_name, temp, humidity, date):
-        """docstring for add_measure"""
-        query = 'SELECT id,name FROM sensors WHERE name=?;'
-        conn = sqlite3.connect(self.conn_uri)
-        cursor = conn.cursor()
-        cursor.execute(query, [sensor_name])
-        sensor = cursor.fetchone()
-        print sensor
-        id_sensor = sensor[0]
-        query = 'INSERT INTO stats (id_sensor, temperature, humidity, label) ' \
-            'VALUES (?,?,?,?);'
-        cursor.execute(query, [id_sensor, temp, humidity, date])
-        cursor.execute('SELECT * FROM stats WHERE id=?', [cursor.lastrowid])
-        inserted_value = cursor.fetchone()
-        conn.commit()
-        conn.close()
-        result = {'name': sensor[1],
-                  'temperature': inserted_value[2],
-                  'humidity': inserted_value[3]}
-        return result
+    def __init__(self, name, mac, description, plant_type):
+        """docstring for __init__"""
+        DATA_BASE.Model.__init__(self)
+        self.id = uuid4().hex
+        self.name = name
+        self.mac = mac
+        self.description = description
+        self.type = plant_type
 
 
-sensors = Sensors()
+class Stats(DATA_BASE.Model):
+    """
+    Interface of stats table
+    """
+    __tablename__ = 'stats'
+    id = Column(String(35), primary_key=True, unique=True)
+    id_sensor = Column(String(35), ForeignKey('sensors.id'), nullable=False)
+    temperature = Column(Integer)
+    humidity = Column(Integer)
+    time = Column(DateTime())
+
+    def __init__(self, id_sensor, temperature, humidity, time):
+        DATA_BASE.Model.__init__(self)
+        self.id = uuid4().hex
+        self.id_sensor = id_sensor
+        self.temperature = temperature
+        self.humidity = humidity
+        self.time = time
+
+
+trig_ddl = DDL("""
+                create trigger tr_limit_size after insert on %s
+                when 15 < (select count() from %s where id_sensor=new.id_sensor)
+                begin
+                delete from %s where id in (select id from %s where id_sensor=new.id_sensor order by time asc limit 1);
+                end;
+                """ % ('stats', 'stats', 'stats', 'stats'))
+
+event.listen(Stats.__table__, 'after_create', trig_ddl)
