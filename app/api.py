@@ -38,7 +38,7 @@ class Sensor(Resource):
         result = {}
         sensor = db_sensor.query.filter(db_sensor.mac==sensor_mac)
         stats = db_stats.query.join(sensor).add_columns(
-            db_sensor.description, db_sensor.name, db_sensor.type).order_by(
+            db_sensor.description, db_sensor.name, db_sensor.plant_type).order_by(
                 db_stats.time).all()
         for stat, description, name, plant_type in stats:
             if name in result:
@@ -104,7 +104,7 @@ class SensorList(Resource):
         for row in sensors:
             result[row.name] = {'mac': row.mac,
                               'description': row.description,
-                              'type': row.type}
+                              'type': row.plant_type}
         return result
 
     def post(self):
@@ -122,7 +122,7 @@ class SensorList(Resource):
             'name': sensor.name,
             'mac': sensor.mac,
             'description': sensor.description,
-            'type': sensor.type
+            'type': sensor.plant_type
         }
 
 

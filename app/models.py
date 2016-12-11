@@ -29,7 +29,7 @@ class Sensor(DATA_BASE.Model):
     name = Column(String(50))
     mac = Column(String(16))
     description = Column(Text())
-    type = Column(String(100))
+    plant_type = Column(String(100))
 
     def __init__(self, name, mac, description, plant_type):
         """docstring for __init__"""
@@ -38,7 +38,7 @@ class Sensor(DATA_BASE.Model):
         self.name = name
         self.mac = mac
         self.description = description
-        self.type = plant_type
+        self.plant_type = plant_type
 
 
 class Stats(DATA_BASE.Model):
