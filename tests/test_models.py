@@ -88,7 +88,7 @@ class TestSuite(object):
         Test the sensor information before push measures
         """
         self.create_sensor()
-        response = self.client.get(url_for('sensor', sensor_mac=self.mac))
+        response = self.client.get('/sensors/'+self.mac)
         assert response.status == '200 OK'
         assert response.json == {}
 
