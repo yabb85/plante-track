@@ -42,7 +42,7 @@ function parseSensor(data) {
 		description[sensor] = data[sensor]['description']
 		for (let element of data[sensor]['stats']) {
 			console.log(element);
-			var unix_time = new Date(element.date*1000);
+			var unix_time = new Date(element.date);
 			var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear();
 			date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds();
 			labels[sensor].push(date);
