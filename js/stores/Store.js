@@ -81,13 +81,13 @@ function loadGraph(chartCanvas, name) {
 			labels: _graph_data.label,
 			datasets:[{
 				label: 'Humidité',
-				fill: false,
+				fill: true,
 				lineTension: 0.3,
 				borderWidth: 2,
 				pointBorderWidth: 1,
 				pointHoverRadius: 10,
 				pointHoverBorderWidth: 2,
-				pointRadius: 4,
+				pointRadius: 1,
 				pointHitRadius: 10,
 				backgroundColor: "rgba(54, 162, 235, 0.4)",
 				borderColor: "#36A2EB",
@@ -101,7 +101,7 @@ function loadGraph(chartCanvas, name) {
 				pointBorderWidth: 1,
 				pointHoverRadius: 10,
 				pointHoverBorderWidth: 2,
-				pointRadius: 4,
+				pointRadius: 1,
 				pointHitRadius: 10,
 				backgroundColor: "rgba(255, 99, 132, 0.4)",
 				borderColor: "#FF6384",
@@ -109,6 +109,7 @@ function loadGraph(chartCanvas, name) {
 			}]
 		},
 		options: {
+			responsive: true,
 			scales: {
 				yAxes: [{
 					display: true,
