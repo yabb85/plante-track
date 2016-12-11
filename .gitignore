@@ -49,7 +49,10 @@ Session.vim
 # auto-generated tag files
 tags
 
-### Build ##
+### Build ###
 # auto generated file with webpack
 app/static/app.js
 app/static/app.css
+
+### Test ###
+app/test.db

@@ -14,23 +14,27 @@ from app.api import api
 from app.views import simple_page
 
 
-app = Flask(__name__)
-app.secret_key = 'plante website'
-app.register_blueprint(simple_page)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-DATA_BASE.init_app(app)
-api.init_app(app)
+def create_app(settings=None):
+    """
+    Create flask application
+    """
+    app = Flask(__name__)
+    app.secret_key = 'plante website'
+    app.register_blueprint(simple_page)
+    if settings:
+        app.config.update(settings)
 
-handler = RotatingFileHandler('ueki.log', maxBytes=10000, backupCount=1)
-handler.setLevel(DEBUG)
-app.logger.addHandler(handler)
+    DATA_BASE.init_app(app)
+    api.init_app(app)
 
-logger = getLogger('werkzeug')
-logger.addHandler(handler)
+    handler = RotatingFileHandler('ueki.log', maxBytes=10000, backupCount=1)
+    handler.setLevel(DEBUG)
+    app.logger.addHandler(handler)
+    logger = getLogger('werkzeug')
+    logger.addHandler(handler)
 
+    return app
 
-@app.cli.command()
-def initdb():
-    """Initialize the database."""
+def create_db():
+    """docstring for create_db"""
     DATA_BASE.create_all()
-    print(u'Init the db')
