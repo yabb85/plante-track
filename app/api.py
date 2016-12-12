@@ -8,19 +8,12 @@ from __future__ import print_function
 from flask_restful import Api
 from flask_restful import Resource
 from flask_restful import reqparse
-from flask_restful import abort
 from datetime import datetime
 from app.models import DATA_BASE
 from app.models import Sensor as db_sensor
 from app.models import Stats as db_stats
 
 api = Api()
-
-
-def abort_if_sensor_doesnt_exist(sensor_mac):
-    """docstring for abort_if_sensor_doesnt_exist"""
-    if sensor_mac not in sensors:
-        abort(404, message="Sensor {} doesn't exist".format(sensor_mac))
 
 
 class Sensor(Resource):
@@ -36,22 +29,27 @@ class Sensor(Resource):
     def get(self, sensor_mac):
         """return measures for one sensor"""
         result = {}
-        sensor = db_sensor.query.filter(db_sensor.mac==sensor_mac)
-        stats = db_stats.query.join(sensor).add_columns(
-            db_sensor.description, db_sensor.name, db_sensor.plant_type).order_by(
-                db_stats.time).all()
-        for stat, description, name, plant_type in stats:
-            if name in result:
-                result[name]['stats'].append({
+        # sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac)
+        # stats_query = db_stats.query.join(sensor).add_columns(
+            # db_sensor.description, db_sensor.name, db_sensor.plant_type).order_by(
+                # db_stats.time)
+        # print(stats_query)
+        other_query = DATA_BASE.session.query(db_sensor, db_stats).filter(
+            db_sensor.mac == sensor_mac).join(db_stats, db_stats.id_sensor ==
+                                              db_sensor.id)
+        stats = other_query.all()
+        for sensor, stat in stats:
+            if sensor.name in result:
+                result[sensor.name]['stats'].append({
                     'temperature': stat.temperature,
                     'humidity': stat.humidity,
                     'date': stat.time.isoformat()
                 })
             else:
-                result[name] = {
-                    'mac': sensor_mac,
-                    'description': description,
-                    'type': plant_type,
+                result[sensor.name] = {
+                    'mac': sensor.mac,
+                    'description': sensor.description,
+                    'type': sensor.plant_type,
                     'stats': [
                         {
                             'temperature': stat.temperature,
@@ -68,7 +66,7 @@ class Sensor(Resource):
         print(args)
         temp = args['temp']
         humidity = args['humidity']
-        sensor = db_sensor.query.filter(db_sensor.mac==sensor_mac).first()
+        sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac).first()
         if not sensor:
             return '', 204
         stat = db_stats(sensor.id, temp, humidity, datetime.utcnow())
@@ -103,8 +101,8 @@ class SensorList(Resource):
         sensors = db_sensor.query.all()
         for row in sensors:
             result[row.name] = {'mac': row.mac,
-                              'description': row.description,
-                              'type': row.plant_type}
+                                'description': row.description,
+                                'type': row.plant_type}
         return result
 
     def post(self):
