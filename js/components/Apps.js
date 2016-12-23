@@ -14,7 +14,7 @@ var App = React.createClass({
 			/* use router to display list or graph */
 			<Router history={hashHistory}>
 				<Route path='/' component={SensorList}/>
-				<Route path='/graph/:name' component={SensorGraph}/>
+				<Route path='/graph/:mac' component={SensorGraph}/>
 				<Route path='/add_sensor' component={SensorForm}/>
 			</Router>
 		);

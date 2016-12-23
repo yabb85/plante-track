@@ -2,18 +2,18 @@ import Dispatcher from '../dispatchers/Dispatcher';
 import Constants from '../constants/Constants';
 
 var Actions = {
-    loadGraph: function(new_canvas, name) {
+    loadGraph: function(new_canvas, mac) {
         Dispatcher.handleGraphAction({
             actionType: Constants.LOAD_GRAPH,
 			canvas: new_canvas,
-			name: name
+			mac: mac
         });
     },
 
-    updateGraph: function(name) {
+    updateGraph: function(mac) {
         Dispatcher.handleGraphAction({
             actionType: Constants.UPDATE_GRAPH,
-			name: name
+			mac: mac
         });
     },
 

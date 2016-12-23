@@ -26,7 +26,7 @@ var SensorList = React.createClass({
 	render: function() {
 		var createItem = function(item) {
 			return(
-				<SensorTile key={item}>{item}</SensorTile>
+				<SensorTile key={item.name}>{item}</SensorTile>
 			);
 		};
 		return(

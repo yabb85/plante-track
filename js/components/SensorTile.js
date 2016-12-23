@@ -12,9 +12,9 @@ var SensorTile = React.createClass({
 	},
 	render: function(e) {
 		return(
-				<div className="col-xs-4 col-sm-3 col-lg-2" key={this.props.children} id={this.props.children} onClick={this.handleClick}>
+				<div className="col-xs-4 col-sm-3 col-lg-2" key={this.props.children.name} id={this.props.children.mac} onClick={this.handleClick}>
 					<div className="thumbnail">
-						{this.props.children}
+						{this.props.children.name}
 					</div>
 				</div>
 			  );

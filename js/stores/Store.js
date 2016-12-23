@@ -7,6 +7,7 @@ import $ from 'jquery';
 var CHANGE_EVENT = 'change';
 
 var _graph_data = {
+	name: '',
 	chart: null,
 	type: '',
 	description: '',
@@ -16,65 +17,63 @@ var _graph_data = {
 };
 
 var _sensorList = {
-	sensor: '',
 	sensors: [],
-	state: 'list'
 };
 
 /*
- * Met en forme les donnée de la liste des capteurs retourné par le serveur
+ * Met en forme les donnée du capteurs retourné par le serveur
  */
 function parseSensor(data) {
-	var sensors = [];
-	let labels = {};
-	let temps = {};
-	let humidity = {};
-	let type = {};
-	let description = {};
-	let idx = 0;
+	let labels = [];
+	let temps = [];
+	let humidity = [];
+	let type = '';
+	let description = '';
+	let name = ''
 	for (let sensor in data) {
-		console.log(sensor);
-		sensors.push(sensor);
-		labels[sensor] = [];
-		temps[sensor] = [];
-		humidity[sensor] = [];
-		type[sensor] = data[sensor]['type']
-		description[sensor] = data[sensor]['description']
+		name = sensor
+		type = data[sensor]['type']
+		description = data[sensor]['description']
 		for (let element of data[sensor]['stats']) {
-			console.log(element);
 			var unix_time = new Date(element.date);
 			var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear();
 			date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds();
-			labels[sensor].push(date);
-			temps[sensor].push(parseInt(element.temperature));
-			humidity[sensor].push(parseInt(element.humidity));
+			labels.push(date);
+			temps.push(parseInt(element.temperature));
+			humidity.push(parseInt(element.humidity));
 		}
 	}
 	return {
+		name: name,
 		type: type,
 		description: description,
-		sensors: sensors,
 		labels: labels,
 		temps: temps,
 		humidity: humidity
 	}
 }
 
+/*
+ * Met en forme la liste des capteurs retourné par le serveur
+ */
 function parseSensorList(data) {
 	var sensors = [];
-	let idx = 0;
 	for (let sensor in data) {
-		sensors.push(sensor);
+		let elem = {
+			name: sensor,
+			type: data[sensor].type,
+			description: data[sensor].description,
+			mac: data[sensor].mac
+		}
+		sensors.push(elem);
 	}
-	return {
-		sensors: sensors
-	}
+	return sensors
 }
 
 /*
  * Creer un Graph a l'aide de CharJS
  */
-function loadGraph(chartCanvas, name) {
+function loadGraph(chartCanvas, mac) {
 	let myChart = new Chart(chartCanvas, {
 		type: 'line',
 		data: {
@@ -133,14 +132,15 @@ function loadGraph(chartCanvas, name) {
 		}
 	});
 	_graph_data.chart = myChart;
-	let url = "/sensors/"+name;
+	let url = "/sensors/"+mac;
     return $.get(url, function(data) {
 		let result = parseSensor(data);
-		_graph_data.type = result.type[name];
-		_graph_data.description = result.description[name];
-		_graph_data.label = result.labels[name];
-		_graph_data.temp = result.temps[name];
-		_graph_data.humidity = result.humidity[name];
+		_graph_data.name = result.name
+		_graph_data.type = result.type;
+		_graph_data.description = result.description;
+		_graph_data.label = result.labels;
+		_graph_data.temp = result.temps;
+		_graph_data.humidity = result.humidity;
         Store.emitChange();
     });
 }
@@ -148,31 +148,24 @@ function loadGraph(chartCanvas, name) {
 /*
  * Remet a jour les donnés du graph
  */
-function updateGraph(name) {
-	let url = "/sensors/"+name;
+function updateGraph(mac) {
+	let url = "/sensors/"+mac;
     return $.get(url, function(data) {
 		let result = parseSensor(data);
-		_graph_data.label = result.labels[name];
-		_graph_data.temp = result.temps[name];
-		_graph_data.humidity = result.humidity[name];
+		_graph_data.label = result.labels;
+		_graph_data.temp = result.temps;
+		_graph_data.humidity = result.humidity;
         Store.emitChange();
     });
 }
 
 /*
- * Permet de revenir a la vue liste
- * remet a jour le type de vue dans le store sensorList
+ * Lance une requete au serve pour connaitre la liste des capteurs
  */
-function backSensor() {
-	_sensorList.state = 'list';
-}
-
 function loadSensorList() {
 	let url = "/sensors";
     return $.get(url, function(data) {
-		let result = parseSensorList(data);
-		_sensorList.sensors = result.sensors;
-		_sensorList.state = 'list';
+		_sensorList.sensors = parseSensorList(data);
         Store.emitChange();
     });
 
@@ -205,11 +198,11 @@ Dispatcher.register(function(payload) {
 
     switch(payload.action.actionType) {
         case Constants.UPDATE_GRAPH:
-            updateGraph(payload.action.name);
+            updateGraph(payload.action.mac);
             break;
 
         case Constants.LOAD_GRAPH:
-            loadGraph(payload.action.canvas, payload.action.name);
+            loadGraph(payload.action.canvas, payload.action.mac);
             break;
 
 		case Constants.BACK_SENSOR:
@@ -217,7 +210,7 @@ Dispatcher.register(function(payload) {
 			break;
 
 		case Constants.LOAD_SENSOR_LIST:
-			loadSensorList(payload.action.name);
+			loadSensorList(payload.action.mac);
 			break;
 
         default:

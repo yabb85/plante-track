@@ -35,7 +35,7 @@ var SensorGraph = React.createClass({
             <div>
 				<div className="row">
 					<div className="col-md-5">
-						<span>{this.props.params.name}</span>
+						<span>{this.state.name}</span>
 					</div>
 					<div className="col-md-7">
 						<div className="row">
@@ -60,10 +60,10 @@ var SensorGraph = React.createClass({
 		router: React.PropTypes.object
 	},
 	_onUpdate: function() {
-		Actions.updateGraph(this.props.params.name);
+		Actions.updateGraph(this.props.params.mac);
 	},
 	_onInit: function(canvas) {
-		Actions.loadGraph(canvas, this.props.params.name);
+		Actions.loadGraph(canvas, this.props.params.mac);
 	},
 	_onBack: function() {
 		Store.removeChangeListener(this._onChange);

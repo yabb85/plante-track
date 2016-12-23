@@ -10,7 +10,7 @@ module.exports = {
 		]
 	},
 	output: {
-		path: './app/static/',
+		path: './ueki/static/',
 		filename: 'app.js'
 	},
 	module: {
