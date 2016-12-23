@@ -35,6 +35,7 @@ def create_app(settings=None):
 
     return app
 
+
 def create_db():
     """docstring for create_db"""
     DATA_BASE.create_all()
