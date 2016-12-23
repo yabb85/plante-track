@@ -6,8 +6,8 @@ define test
 import pytest
 from os import path as os_path
 from os import unlink as os_unlink
-from app import create_app
-from app import create_db
+from ueki import create_app
+from ueki import create_db
 
 TESTDB_PATH = '/tmp/test_ueki.db'
 TEST_DATABASE_URI = 'sqlite:///' + TESTDB_PATH

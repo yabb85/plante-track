@@ -9,9 +9,9 @@ from flask_restful import Api
 from flask_restful import Resource
 from flask_restful import reqparse
 from datetime import datetime
-from app.models import DATA_BASE
-from app.models import Sensor as db_sensor
-from app.models import Stats as db_stats
+from ueki.models import DATA_BASE
+from ueki.models import Sensor as db_sensor
+from ueki.models import Stats as db_stats
 
 api = Api()
 

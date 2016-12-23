@@ -9,9 +9,9 @@ from logging import DEBUG
 from logging import getLogger
 from flask import Flask
 from logging.handlers import RotatingFileHandler
-from app.models import DATA_BASE
-from app.api import api
-from app.views import simple_page
+from ueki.models import DATA_BASE
+from ueki.api import api
+from ueki.views import simple_page
 
 
 def create_app(settings=None):

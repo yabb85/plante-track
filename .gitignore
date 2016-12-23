@@ -51,8 +51,11 @@ tags
 
 ### Build ###
 # auto generated file with webpack
-app/static/app.js
-app/static/app.css
+ueki/static/app.js
+ueki/static/app.css
 
 ### Test ###
-app/test.db
+ueki/test.db
+
+### Log ###
+ueki.log*

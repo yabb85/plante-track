@@ -6,8 +6,8 @@ Script principal
 
 from __future__ import print_function
 from flask_script import Manager
-from app import create_app
-from app import create_db
+from ueki import create_app
+from ueki import create_db
 
 
 SETTINGS = {
