@@ -14,5 +14,8 @@ npm run dev
 #####prodution:
 npm run deploy
 
+#### Create Database
+python manager.py initdb
+
 ####Launch:
-python app.js
+python manager.py runserver
