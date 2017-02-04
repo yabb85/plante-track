@@ -30,8 +30,9 @@ class Sensor(DATA_BASE.Model):
     mac = Column(String(16))
     description = Column(Text())
     plant_type = Column(String(100))
+    image = Column(String(200))
 
-    def __init__(self, name, mac, description, plant_type):
+    def __init__(self, name, mac, description, plant_type, image):
         """docstring for __init__"""
         DATA_BASE.Model.__init__(self)
         self.id = uuid4().hex
@@ -39,6 +40,7 @@ class Sensor(DATA_BASE.Model):
         self.mac = mac
         self.description = description
         self.plant_type = plant_type
+        self.image = image
 
 
 class Stats(DATA_BASE.Model):

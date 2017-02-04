@@ -1,6 +1,7 @@
 import React from 'react';
 import Actions from '../actions/Action'
 import Store from '../stores/Store'
+import { Link } from 'react-router'
 
 function getGraphState() {
 	return Store.getCurrentGraph();
@@ -37,7 +38,7 @@ var SensorGraph = React.createClass({
 					<div className="col-md-5">
 						<span>{this.state.name}</span>
 					</div>
-					<div className="col-md-7">
+					<div className="col-md-6">
 						<div className="row">
 							<div className="col-md-7">
 								<span>{this.state.type}</span>
@@ -46,6 +47,11 @@ var SensorGraph = React.createClass({
 								<span>{this.state.description}</span>
 							</div>
 						</div>
+					</div>
+					<div className="col-md-1">
+						<Link to={'/edit_sensor/' + this.props.params.mac }>
+							edit <span className='glyphicon glyphicon-pencil'/>
+						</Link>
 					</div>
 				</div>
 				<div className="row">

@@ -3,17 +3,15 @@ import Dropzone from 'react-dropzone'
 import EventEmitter from 'events'
 import $ from 'jquery';
 
-/*
- * Create a separate component
- */
 var CHANGE_EVENT = 'change_create_sensor'
 // local storage
 var _form_data = {
-	files: [],
+	file: null,
 	name: '',
 	mac: '',
 	type: '',
-	description: ''
+	description: '',
+	image: ''
 }
 
 //local store
@@ -27,17 +25,69 @@ var Store = Object.assign({}, EventEmitter.prototype, {
 	},
 
 	addChangeListener: function(callback) {
-		this.on(CHANGE_EVENT, callback);
+		this.on(CHANGE_EVENT, callback)
 	},
 
 	removeChangeListener: function(callback) {
 		this.removeListener(CHANGE_EVENT, callback)
 	}
-});
+})
 
-// functions
+function parseSensor(data) {
+	let labels = []
+	let temps = []
+	let humidity = []
+	let type = ''
+	let description = ''
+	let name = ''
+	let mac = ''
+	let image = ''
+	for (let sensor in data) {
+		name = sensor
+		type = data[sensor]['type']
+		description = data[sensor]['description']
+		mac = data[sensor]['mac']
+		image = data[sensor]['image']
+		for (let element of data[sensor]['stats']) {
+			var unix_time = new Date(element.date);
+			var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear()
+			date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds()
+			labels.push(date)
+			temps.push(parseInt(element.temperature))
+			humidity.push(parseInt(element.humidity))
+		}
+	}
+	return {
+		name: name,
+		type: type,
+		mac: mac,
+		description: description,
+		labels: labels,
+		image: image,
+		temps: temps,
+		humidity: humidity
+	}
+}
+
+function loadData(address) {
+	let url = '/sensors/' + address
+	return $.ajax({
+		url: url,
+		type: 'GET',
+		success: function(data) {
+			data = parseSensor(data)
+			_form_data.type = data.type
+			_form_data.mac = data.mac
+			_form_data.name = data.name
+			_form_data.description = data.description
+			_form_data.image = data.image
+			Store.emitChange()
+		}
+	})
+}
+
 function setImage(files) {
-	_form_data.files = files
+	_form_data.file = files[0]
 	Store.emitChange()
 }
 
@@ -61,16 +111,15 @@ function setDescription(description) {
 	Store.emitChange()
 }
 
-function createSensor() {
+function updateSensor(data) {
 	var form_data = new FormData()
-	$.each(_form_data, function(key, value) {
+	$.each(data, function(key, value) {
 		form_data.append(key, value)
 	})
-	console.log(form_data)
-	let url = '/sensors'
+	let url = '/sensors/' + data.mac
 	return $.ajax({
 		url: url,
-		type: 'POST',
+		type: 'PUT',
 		cache: false,
 		data: form_data,
 		dataType: 'json',
@@ -82,8 +131,8 @@ function createSensor() {
 	})
 }
 
-var SensorForm = React.createClass({
-	displayName: 'UploadImage',
+var SensorEdit = React.createClass({
+	displayName: 'SensorEdit',
 	getInitialState: function() {
 		return Store.getFormData()
 	},
@@ -92,14 +141,24 @@ var SensorForm = React.createClass({
 	},
 	componentDidMount: function() {
 		Store.addChangeListener(this._onChange)
+		this._onInit(this.props.params.mac)
 	},
 	componentWillUnmount: function() {
 		Store.removeChangeListener(this._onChange)
 	},
 	render: function() {
+		if (this.state.file != null) {
+			var style = {
+				backgroundImage: 'url(' + this.state.file.preview + ')'
+			}
+		} else {
+			var style = {
+				backgroundImage: 'url(' + this.state.image + ')'
+			}
+		}
 		return (
 			<div>
-				<h1>Ajouter un capteur</h1>
+				<h1>Modification du capteur</h1>
 				<form onSubmit={this._onSubmit}>
 					<div>
 						<label>Nom du capteur</label>
@@ -120,20 +179,19 @@ var SensorForm = React.createClass({
 					<div>
 						<label>Image</label>
 						<Dropzone ref='dropzone' onDrop={this._onDrop} multiple={false}>
-							<div>Try dropping some files here, or click to select files to upload.</div>
+							<div style= {style}>Try dropping some files here, or click to select files to upload.</div>
 						</Dropzone>
-						{this.state.files.length > 0 ? <div>
-						<h2>Uploading {this.state.files.length} files...</h2>
-						<div>{this.state.files.map((file) => <img src={file.preview} /> )}</div>
-						</div> : null}
 					</div>
 					<input type='submit' />
 				</form>
 			</div>
 		)
 	},
-	_onDrop: function(files) {
-		setImage(files)
+	_onChange: function() {
+		this.setState(Store.getFormData())
+	},
+	_onInit: function(address) {
+		loadData(address)
 	},
 	_onSetName: function(event) {
 		setName(event.target.value)
@@ -148,11 +206,11 @@ var SensorForm = React.createClass({
 		setDescription(event.target.value)
 	},
 	_onSubmit: function() {
-		createSensor()
+		updateSensor(_form_data)
 	},
-	_onChange: function() {
-		this.setState(Store.getFormData());
+	_onDrop: function(files) {
+		setImage(files)
 	}
 })
 
-export default SensorForm
+export default SensorEdit

@@ -12,7 +12,8 @@ from ueki import create_db
 
 
 SETTINGS = {
-    'SQLALCHEMY_DATABASE_URI': 'sqlite:///test.db'
+    'SQLALCHEMY_DATABASE_URI': 'sqlite:///test.db',
+    'UPLOADS_DEFAULT_DEST': '/tmp/upload'
 }
 app = create_app(SETTINGS)
 

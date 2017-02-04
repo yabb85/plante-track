@@ -63,7 +63,8 @@ function parseSensorList(data) {
 			name: sensor,
 			type: data[sensor].type,
 			description: data[sensor].description,
-			mac: data[sensor].mac
+			mac: data[sensor].mac,
+			image: data[sensor].image
 		}
 		sensors.push(elem);
 	}

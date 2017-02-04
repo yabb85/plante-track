@@ -5,6 +5,7 @@ Create an api for site
 """
 
 from __future__ import print_function
+from __future__ import unicode_literals
 from flask_restful import Api
 from flask_restful import Resource
 from flask_restful import reqparse
@@ -12,6 +13,8 @@ from datetime import datetime
 from ueki.models import DATA_BASE
 from ueki.models import Sensor as db_sensor
 from ueki.models import Stats as db_stats
+from ueki.upload import uploaded_image
+from werkzeug import datastructures
 
 api = Api()
 
@@ -25,6 +28,14 @@ class Sensor(Resource):
         self.post_parser = reqparse.RequestParser()
         self.post_parser.add_argument('temp')
         self.post_parser.add_argument('humidity')
+        self.put_parser = reqparse.RequestParser()
+        self.put_parser.add_argument('name')
+        self.put_parser.add_argument('mac')
+        self.put_parser.add_argument('type')
+        self.put_parser.add_argument('description')
+        self.put_parser.add_argument('file',
+                                     type=datastructures.FileStorage,
+                                     location='files')
 
     def get(self, sensor_mac):
         """return measures for one sensor"""
@@ -50,6 +61,7 @@ class Sensor(Resource):
                     'mac': sensor.mac,
                     'description': sensor.description,
                     'type': sensor.plant_type,
+                    'image': sensor.image,
                     'stats': [
                         {
                             'temperature': stat.temperature,
@@ -74,9 +86,30 @@ class Sensor(Resource):
         DATA_BASE.session.commit()
         return {
             'name': sensor.name,
+            'image': sensor.image,
             'temperature': temp,
             'humidity': humidity
         }
+
+    def put(self, sensor_mac):
+        """
+        Update informations of sensor
+        """
+        args = self.put_parser.parse_args()
+        name = args['name']
+        description = args['description']
+        plant_type = args['type']
+        image = args['file']
+        filename = uploaded_image.save(image)
+        url = uploaded_image.url(filename)
+        sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac).first()
+        if not sensor:
+            return '', 204
+        sensor.name = name
+        sensor.plant_type = plant_type
+        sensor.description = description
+        sensor.image = url
+        DATA_BASE.session.commit()
 
     def delete(self, sensor_mac):
         """remove one sensor"""
@@ -94,6 +127,9 @@ class SensorList(Resource):
         self.parser.add_argument('mac')
         self.parser.add_argument('description')
         self.parser.add_argument('type')
+        self.parser.add_argument('file',
+                                 type=datastructures.FileStorage,
+                                 location='files')
 
     def get(self):
         """return list of measures for all sensors"""
@@ -102,7 +138,8 @@ class SensorList(Resource):
         for row in sensors:
             result[row.name] = {'mac': row.mac,
                                 'description': row.description,
-                                'type': row.plant_type}
+                                'type': row.plant_type,
+                                'image': row.image}
         return result
 
     def post(self):
@@ -112,7 +149,10 @@ class SensorList(Resource):
         mac = args['mac']
         description = args['description']
         plant_type = args['type']
-        sensor = db_sensor(name, mac, description, plant_type)
+        image = args['file']
+        filename = uploaded_image.save(image)
+        url = uploaded_image.url(filename)
+        sensor = db_sensor(name, mac, description, plant_type, url)
         DATA_BASE.session.add(sensor)
         DATA_BASE.session.commit()
         return {
@@ -120,7 +160,8 @@ class SensorList(Resource):
             'name': sensor.name,
             'mac': sensor.mac,
             'description': sensor.description,
-            'type': sensor.plant_type
+            'type': sensor.plant_type,
+            'image': sensor.image
         }
 
 

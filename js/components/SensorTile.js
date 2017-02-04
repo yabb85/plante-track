@@ -11,10 +11,13 @@ var SensorTile = React.createClass({
 		this.context.router.push(path)
 	},
 	render: function(e) {
+		const style = {
+			backgroundImage: 'url(' + this.props.children.image + ')'
+		};
 		return(
 				<div className="col-xs-4 col-sm-3 col-lg-2" key={this.props.children.name} id={this.props.children.mac} onClick={this.handleClick}>
-					<div className="thumbnail">
-						{this.props.children.name}
+					<div className="thumbnail" style={style}>
+ 						{this.props.children.name}
 					</div>
 				</div>
 			  );
