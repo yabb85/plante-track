@@ -3,6 +3,7 @@ import EventEmitter from 'events';
 import Constants from '../constants/Constants';
 import Chart from 'chart.js';
 import $ from 'jquery';
+import {  parseSensor } from '../utils/utils.js'
 
 var CHANGE_EVENT = 'change';
 
@@ -20,38 +21,6 @@ var _sensorList = {
 	sensors: [],
 };
 
-/*
- * Met en forme les donnée du capteurs retourné par le serveur
- */
-function parseSensor(data) {
-	let labels = [];
-	let temps = [];
-	let humidity = [];
-	let type = '';
-	let description = '';
-	let name = ''
-	for (let sensor in data) {
-		name = sensor
-		type = data[sensor]['type']
-		description = data[sensor]['description']
-		for (let element of data[sensor]['stats']) {
-			var unix_time = new Date(element.date);
-			var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear();
-			date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds();
-			labels.push(date);
-			temps.push(parseInt(element.temperature));
-			humidity.push(parseInt(element.humidity));
-		}
-	}
-	return {
-		name: name,
-		type: type,
-		description: description,
-		labels: labels,
-		temps: temps,
-		humidity: humidity
-	}
-}
 
 /*
  * Met en forme la liste des capteurs retourné par le serveur
