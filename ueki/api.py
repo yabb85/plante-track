@@ -150,8 +150,10 @@ class SensorList(Resource):
         description = args['description']
         plant_type = args['type']
         image = args['file']
-        filename = uploaded_image.save(image)
-        url = uploaded_image.url(filename)
+        url = ''
+        if image:
+            filename = uploaded_image.save(image)
+            url = uploaded_image.url(filename)
         sensor = db_sensor(name, mac, description, plant_type, url)
         DATA_BASE.session.add(sensor)
         DATA_BASE.session.commit()
