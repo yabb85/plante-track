@@ -20,7 +20,8 @@ def app(request):
     """
     settings_override = {
         'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': TEST_DATABASE_URI
+        'SQLALCHEMY_DATABASE_URI': TEST_DATABASE_URI,
+        'UPLOADS_DEFAULT_DEST': '/tmp/test_upload'
     }
     flask_app = create_app(settings_override)
     with flask_app.app_context():

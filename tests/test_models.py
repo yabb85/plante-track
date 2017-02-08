@@ -72,6 +72,7 @@ class TestSuite(object):
         assert response.json['mac'] == self.mac
         assert response.json['description'] == self.description
         assert response.json['type'] == self.plant_type
+        assert response.json['image'] == ''
         assert response.json['id'] != None
         response = self.client.get(url_for('sensorlist'))
         assert response.status == '200 OK'
@@ -79,7 +80,8 @@ class TestSuite(object):
             self.name: {
                 'description': self.description,
                 'mac': self.mac,
-                'type': self.plant_type
+                'type': self.plant_type,
+                'image': ''
             }
         }
 
@@ -101,6 +103,7 @@ class TestSuite(object):
         assert response.status == '200 OK'
         assert response.json == {
             'name': self.name,
+            'image': '',
             'temperature': '25',
             'humidity': '40'
         }
