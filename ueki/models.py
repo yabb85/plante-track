@@ -65,7 +65,7 @@ class Stats(DATA_BASE.Model):
 
 trig_ddl = DDL("""
                 create trigger tr_limit_size after insert on %s
-                when 72 < (select count() from %s where id_sensor=new.id_sensor)
+                when 2232 < (select count() from %s where id_sensor=new.id_sensor)
                 begin
                 delete from %s where id in (select id from %s where id_sensor=new.id_sensor order by time asc limit 1);
                 end;
