@@ -27,7 +27,7 @@ module.exports = {
 			{
 				test: /\.css$/,
 				loader: extractCSS.extract(['css'])
-			}
+			},
 			{
 				test: /\.json$/,
 				loader: 'json'
