@@ -81,7 +81,7 @@ class Sensor(Resource):
         sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac).first()
         if not sensor:
             return '', 204
-        stat = db_stats(sensor.id, temp, humidity, datetime.now())
+        stat = db_stats(sensor.id, temp, humidity, datetime.utcnow())
         DATA_BASE.session.add(stat)
         DATA_BASE.session.commit()
         return {

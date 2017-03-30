@@ -88,9 +88,17 @@ function loadGraph(chartCanvas, mac) {
 					},
 				}],
 				xAxes: [{
-					display: true,
-					gridLines: {
-						display: false
+					type: 'time',
+					time: {
+						format: 'DD/MM/YYYY HH:mm',
+						tooltipFormat: 'll HH:mm',
+						displayFormats: {
+							hour: 'MMM DD HH:mm'
+						}
+					},
+					scaleLabel: {
+						display: true,
+						labelString: 'Date'
 					}
 				}]
 			},

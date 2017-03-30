@@ -24,6 +24,7 @@
     "babel-preset-react": "^6.5.0",
     "css-loader": "^0.23.1",
     "extract-text-webpack-plugin": "^1.0.1",
+    "json-loader": "^0.5.4",
     "webpack": "^1.13.1"
   },
   "dependencies": {
@@ -31,6 +32,8 @@
     "flux": "^2.1.1",
     "jquery": "^2.2.4",
     "keymirror": "^0.1.1",
+    "moment": "^2.18.1",
+    "moment-timezone": "^0.5.11",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "react-dropzone": "^3.5.3",

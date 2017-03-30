@@ -1,3 +1,6 @@
+import moment from 'moment'
+import 'moment-timezone'
+
 export function parseSensor(data) {
 	let labels = []
 	let temps = []
@@ -14,9 +17,10 @@ export function parseSensor(data) {
 		mac = data[sensor]['mac']
 		image = data[sensor]['image']
 		for (let element of data[sensor]['stats']) {
-			var unix_time = new Date(element.date);
-			var date = unix_time.getDate()+"/"+(unix_time.getMonth()+1)+"/"+unix_time.getFullYear()
-			date += " "+unix_time.getHours()+":"+unix_time.getMinutes()+":"+unix_time.getSeconds()
+			let date = moment.utc(element.date)
+			let zone = moment.tz.guess()
+			let offset = moment.tz(zone).format("Z")
+			date.utcOffset(offset)
 			labels.push(date)
 			temps.push(parseInt(element.temperature))
 			humidity.push(parseInt(element.humidity))

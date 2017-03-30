@@ -147,7 +147,8 @@ var SensorForm = React.createClass({
 	_onSetDescription: function(event) {
 		setDescription(event.target.value)
 	},
-	_onSubmit: function() {
+	_onSubmit: function(e) {
+		e.preventDefault()
 		createSensor()
 	},
 	_onChange: function() {
