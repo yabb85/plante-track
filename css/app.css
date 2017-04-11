@@ -19,3 +19,15 @@ body {
 .thumbnail {
 	height: 100px
 }
+
+canvas {
+	width: 100% !important;
+	max-height: 300px !important;
+}
+
+@media (max-width: 640px) {
+	canvas {
+		width: 100% !important;
+		height: 75% !important;
+	}
+}

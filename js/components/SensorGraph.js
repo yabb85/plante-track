@@ -55,7 +55,7 @@ var SensorGraph = React.createClass({
 					</div>
 				</div>
 				<div className="row">
-					<canvas ref={'chart'} height="100" width="600" height="150"></canvas>
+					<canvas ref={'chart'}></canvas>
 					<button onClick={this._onBack}>Back</button>
 					<button onClick={this._onUpdate}>Reload</button>
 				</div>

@@ -79,6 +79,7 @@ function loadGraph(chartCanvas, mac) {
 		},
 		options: {
 			responsive: true,
+			maintainAspectRatio: false,
 			scales: {
 				yAxes: [{
 					display: true,
