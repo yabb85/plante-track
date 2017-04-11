@@ -5,3 +5,4 @@ flask_sqlalchemy
 flask-uploads
 pytest
 pytest-flask
+flask-compress

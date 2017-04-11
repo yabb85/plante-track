@@ -1,6 +1,7 @@
 var webpack = require("webpack")
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var extractCSS = new ExtractTextPlugin('app.css');
+var CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
 	entry: {
@@ -44,7 +45,19 @@ module.exports = {
 		new webpack.optimize.UglifyJsPlugin({
 			compress:{
 				warnings: true
+			},
+			minimize: true,
+			output:{
+				comments: false
 			}
+		}),
+		new webpack.optimize.AggressiveMergingPlugin(),
+		new CompressionPlugin({
+			asset: "[path].gz[query]",
+			algorithm: "gzip",
+			test: /\.js$|\.css$|\.html$/,
+			threshold: 10240,
+			minRatio: 0.8
 		})
 	]
 }
