@@ -100,15 +100,16 @@ class Sensor(Resource):
         description = args['description']
         plant_type = args['type']
         image = args['file']
-        filename = uploaded_image.save(image)
-        url = uploaded_image.url(filename)
         sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac).first()
         if not sensor:
             return '', 204
         sensor.name = name
         sensor.plant_type = plant_type
         sensor.description = description
-        sensor.image = url
+        if image:
+            filename = uploaded_image.save(image)
+            url = uploaded_image.url(filename)
+            sensor.image = url
         DATA_BASE.session.commit()
 
     def delete(self, sensor_mac):
