@@ -50,7 +50,7 @@ function loadGraph(chartCanvas, mac) {
 			labels: _graph_data.label,
 			datasets:[{
 				label: 'Humidité',
-				fill: true,
+				fill: false,
 				lineTension: 0.3,
 				borderWidth: 2,
 				pointBorderWidth: 1,
