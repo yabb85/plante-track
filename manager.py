@@ -20,6 +20,10 @@ app = create_app(SETTINGS)
 manager = Manager(app)
 manager.add_command('runserver', Server(host='0.0.0.0', port=5000))
 
+@app.errorhandler(500)
+def internal_error(exception):
+    app.logger.error(exception)
+    return 500
 
 @manager.command
 def initdb():

@@ -120,6 +120,7 @@ function loadGraph(chartCanvas, mac) {
 		_graph_data.label = result.labels;
 		_graph_data.temp = result.temps;
 		_graph_data.humidity = result.humidity;
+		_graph_data.floor_humidity = result.floor_humidity;
         Store.emitChange();
     });
 }
@@ -134,6 +135,7 @@ function updateGraph(mac) {
 		_graph_data.label = result.labels;
 		_graph_data.temp = result.temps;
 		_graph_data.humidity = result.humidity;
+		_graph_data.floor_humidity = result.floor_humidity;
         Store.emitChange();
     });
 }

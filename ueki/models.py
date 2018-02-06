@@ -52,14 +52,16 @@ class Stats(DATA_BASE.Model):
     id_sensor = Column(String(35), ForeignKey('sensors.id'), nullable=False)
     temperature = Column(Integer)
     humidity = Column(Integer)
+    floor_humidity = Column(Integer)
     time = Column(DateTime())
 
-    def __init__(self, id_sensor, temperature, humidity, time):
+    def __init__(self, id_sensor, temperature, humidity, floor_humidity, time):
         DATA_BASE.Model.__init__(self)
         self.id = uuid4().hex
         self.id_sensor = id_sensor
         self.temperature = temperature
         self.humidity = humidity
+        self.floor_humidity = floor_humidity
         self.time = time
 
 
@@ -71,4 +73,4 @@ trig_ddl = DDL("""
                 end;
                 """ % ('stats', 'stats', 'stats', 'stats'))
 
-event.listen(Stats.__table__, 'after_create', trig_ddl)
+# event.listen(Stats.__table__, 'after_create', trig_ddl)

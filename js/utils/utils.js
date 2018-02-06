@@ -5,6 +5,7 @@ export function parseSensor(data) {
 	let labels = []
 	let temps = []
 	let humidity = []
+	let floor_humidity = []
 	let type = ''
 	let description = ''
 	let name = ''
@@ -24,6 +25,7 @@ export function parseSensor(data) {
 			labels.push(date)
 			temps.push(parseInt(element.temperature))
 			humidity.push(parseInt(element.humidity))
+			floor_humidity.push(parseInt(element.floor_humidity))
 		}
 	}
 	return {
@@ -34,6 +36,7 @@ export function parseSensor(data) {
 		labels: labels,
 		image: image,
 		temps: temps,
-		humidity: humidity
+		humidity: humidity,
+		floor_humidity: floor_humidity
 	}
 }

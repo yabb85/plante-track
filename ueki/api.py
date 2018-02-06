@@ -28,6 +28,7 @@ class Sensor(Resource):
         self.post_parser = reqparse.RequestParser()
         self.post_parser.add_argument('temp')
         self.post_parser.add_argument('humidity')
+        self.post_parser.add_argument('floor_humidity')
         self.put_parser = reqparse.RequestParser()
         self.put_parser.add_argument('name')
         self.put_parser.add_argument('mac')
@@ -42,8 +43,8 @@ class Sensor(Resource):
         result = {}
         # sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac)
         # stats_query = db_stats.query.join(sensor).add_columns(
-            # db_sensor.description, db_sensor.name, db_sensor.plant_type).order_by(
-                # db_stats.time)
+        # db_sensor.description, db_sensor.name, db_sensor.plant_type).order_by(
+        # db_stats.time)
         # print(stats_query)
         other_query = DATA_BASE.session.query(db_sensor, db_stats).filter(
             db_sensor.mac == sensor_mac).join(db_stats, db_stats.id_sensor ==
@@ -73,22 +74,27 @@ class Sensor(Resource):
         return result
 
     def post(self, sensor_mac):
-        """docstring for patch"""
+        """
+        Save mesure for selected sensor
+        """
         args = self.post_parser.parse_args()
         print(args)
         temp = args['temp']
         humidity = args['humidity']
+        floor_humidity = args['floor_humidity']
         sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac).first()
         if not sensor:
             return '', 204
-        stat = db_stats(sensor.id, temp, humidity, datetime.utcnow())
+        stat = db_stats(sensor.id, temp, humidity, floor_humidity,
+                        datetime.utcnow())
         DATA_BASE.session.add(stat)
         DATA_BASE.session.commit()
         return {
             'name': sensor.name,
             'image': sensor.image,
             'temperature': temp,
-            'humidity': humidity
+            'humidity': humidity,
+            'floor_humidity': floor_humidity
         }
 
     def put(self, sensor_mac):
