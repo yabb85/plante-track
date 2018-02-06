@@ -1,6 +1,6 @@
 import App from '../components/App'
 import SensorList from '../components/SensorList'
-import SensorGraph from '../components/SensorGraph'
+import SensorBoard from '../components/SensorBoard'
 import SensorForm from '../components/SensorForm'
 import SensorEdit from '../components/SensorEdit'
 
@@ -13,7 +13,7 @@ const routes = {
 		},
 		{
 			path: '/graph/:mac',
-			component: SensorGraph
+			component: SensorBoard
 		},
 		{
 			path: '/add_sensor',

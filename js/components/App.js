@@ -1,7 +1,7 @@
 import React from 'react';
 import { IndexLink, Link } from 'react-router'
 import SensorList from './SensorList'
-import SensorGraph from './SensorGraph'
+import SensorBoard from './SensorBoard'
 import SensorForm from './SensorForm'
 import SensorEdit from './SensorEdit'
 

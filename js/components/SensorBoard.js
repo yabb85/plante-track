@@ -8,8 +8,8 @@ function getGraphState() {
 }
 
 /* Graph */
-var SensorGraph = React.createClass({
-	displayName: "SensorGraph",
+var SensorBoard = React.createClass({
+	displayName: "SensorBoard",
 	getInitialState: function() {
 		return getGraphState();
 	},
@@ -80,4 +80,4 @@ var SensorGraph = React.createClass({
 	}
 });
 
-export default SensorGraph
+export default SensorBoard
