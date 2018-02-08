@@ -42,12 +42,13 @@ class TestSuite(object):
                                           description=self.description,
                                           type=self.plant_type))
 
-    def create_measure(self, humidity, temperature):
+    def create_measure(self, humidity, temperature, floor_humidity):
         """
         Execute a request to add a new measure for specified sensor
         """
         return self.client.post(url_for('sensor', sensor_mac=self.mac),
-                                data=dict(humidity=humidity, temp=temperature))
+                                data=dict(humidity=humidity, temp=temperature,
+                                          floor_humidity=floor_humidity))
 
     def test_1(self):
         """
@@ -99,13 +100,14 @@ class TestSuite(object):
         Test the creation of new measure for specified sensor
         """
         self.create_sensor()
-        response = self.create_measure(40, 25)
+        response = self.create_measure(40, 25, 150)
         assert response.status == '200 OK'
         assert response.json == {
             'name': self.name,
             'image': '',
             'temperature': '25',
-            'humidity': '40'
+            'humidity': '40',
+            'floor_humidity': '150'
         }
         response = self.client.get(url_for('sensor', sensor_mac=self.mac))
         assert response.status == '200 OK'
@@ -122,9 +124,9 @@ class TestSuite(object):
         Test the sensor page with measure
         """
         self.create_sensor()
-        self.create_measure(40, 25)
-        self.create_measure(41, 24)
-        self.create_measure(42, 23)
+        self.create_measure(40, 25, 150)
+        self.create_measure(41, 24, 8)
+        self.create_measure(42, 23, 400)
         response = self.client.get(url_for('sensor', sensor_mac=self.mac))
         assert response.status == '200 OK'
         assert response.json[self.name]['description'] == self.description
