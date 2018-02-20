@@ -1,159 +1,133 @@
 import React from 'react'
 import Dropzone from 'react-dropzone'
-import EventEmitter from 'events'
-import $ from 'jquery';
+import { connect } from 'react-redux'
+import * as actions from '../redux/action'
+import { Redirect } from 'react-router-dom'
 
-/*
- * Create a separate component
- */
-var CHANGE_EVENT = 'change_create_sensor'
-// local storage
-var _form_data = {
-	files: [],
-	name: '',
-	mac: '',
-	type: '',
-	description: ''
-}
 
-//local store
-var Store = Object.assign({}, EventEmitter.prototype, {
-	getFormData: function() {
-		return _form_data
-	},
-
-	emitChange: function() {
-		this.emit(CHANGE_EVENT)
-	},
-
-	addChangeListener: function(callback) {
-		this.on(CHANGE_EVENT, callback);
-	},
-
-	removeChangeListener: function(callback) {
-		this.removeListener(CHANGE_EVENT, callback)
-	}
-});
-
-// functions
-function setImage(files) {
-	_form_data.files = files
-	Store.emitChange()
-}
-
-function setName(name) {
-	_form_data.name = name
-	Store.emitChange()
-}
-
-function setMac(address) {
-	_form_data.mac = address
-	Store.emitChange()
-}
-
-function setType(type) {
-	_form_data.type = type
-	Store.emitChange()
-}
-
-function setDescription(description) {
-	_form_data.description = description
-	Store.emitChange()
-}
-
-function createSensor() {
-	var form_data = new FormData()
-	$.each(_form_data, function(key, value) {
-		form_data.append(key, value)
-	})
-	console.log(form_data)
-	let url = '/sensors'
-	return $.ajax({
-		url: url,
-		type: 'POST',
-		cache: false,
-		data: form_data,
-		dataType: 'json',
-		processData: false,
-		contentType: false,
-		success: function(data) {
-			console.log(data)
+class SensorForm extends React.Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			created: false,
+			message: ''
 		}
-	})
+		this._onSubmit = this._onSubmit.bind(this)
+	}
+
+	componentWillMount() {
+	}
+
+	componentDidMount() {
+	}
+
+	componentWillUnmount() {
+	}
+
+	render() {
+		if (this.state.created) {
+			return(<Redirect push to="/"/>)
+		} else {
+			return (
+				<div>
+					<h1>Ajouter un capteur</h1>
+					<div>
+						{this.state.message}
+					</div>
+					<form onSubmit={this._onSubmit}>
+						<div>
+							<label>Nom du capteur</label>
+							<input type='text' value={this.props.sensor.get('name')} onChange={this.props.setName}/>
+						</div>
+						<div>
+							<label>Adresse MAC</label>
+							<input type='text' value={this.props.sensor.get('mac')} onChange={this.props.setMac}/>
+						</div>
+						<div>
+							<label>Type de plante</label>
+							<input type='text' value={this.props.sensor.get('plant_type')} onChange={this.props.setType}/>
+						</div>
+						<div>
+							<label>Description</label>
+							<textarea value={this.props.sensor.get('description')} onChange={this.props.setDescription}/>
+						</div>
+						<div>
+							<label>Image</label>
+							<Dropzone ref='dropzone' onDrop={this._onDrop} multiple={false}>
+								<div>Try dropping some files here, or click to select files to upload.</div>
+							</Dropzone>
+							{this.props.files.length > 0 ? <div>
+							<h2>Uploading {this.props.files.length} files...</h2>
+							<div>{this.props.files.map((file) => <img src={file.preview} /> )}</div>
+							</div> : null}
+						</div>
+						<input type='submit' />
+					</form>
+				</div>
+			)
+		}
+	}
+
+	_onDrop(files) {
+	}
+
+	_onSubmit(e) {
+		e.preventDefault()
+		//this.props.setSensor(JSON.stringify(this.props.sensor))
+		var myHeaders = new Headers()
+		myHeaders.append('Content-Type', 'application/json')
+		var data = new FormData()
+		data.append('json', this.props.sensor)
+		fetch("/sensors", {
+			method: 'POST',
+			body: JSON.stringify(this.props.sensor),
+			headers: myHeaders
+		})
+			.then(function(response) {
+				return response.json()
+			})
+			.then(async function(data) {
+				console.log(typeof data)
+				console.log(data)
+				if (data.hasOwnProperty('message')) {
+					this.setState({
+						created: false,
+						message: data.message
+					})
+				} else {
+					this.setState({
+						created: true,
+						message: ''
+					})
+				}
+			}.bind(this));
+	}
+
 }
 
-var SensorForm = React.createClass({
-	displayName: 'UploadImage',
-	getInitialState: function() {
-		return Store.getFormData()
+export default connect(
+	function mapStateToProps(state) {
+		return {
+			sensor: state.sensor,
+			files: []
+		}
 	},
-	componentWillMount: function() {
-		Store.removeChangeListener(this._onChange)
-	},
-	componentDidMount: function() {
-		Store.addChangeListener(this._onChange)
-	},
-	componentWillUnmount: function() {
-		Store.removeChangeListener(this._onChange)
-	},
-	render: function() {
-		return (
-			<div>
-				<h1>Ajouter un capteur</h1>
-				<form onSubmit={this._onSubmit}>
-					<div>
-						<label>Nom du capteur</label>
-						<input type='text' value={this.state.name} onChange={this._onSetName}/>
-					</div>
-					<div>
-						<label>Adresse MAC</label>
-						<input type='text' value={this.state.mac} onChange={this._onSetMac}/>
-					</div>
-					<div>
-						<label>Type de plante</label>
-						<input type='text' value={this.state.type} onChange={this._onSetType}/>
-					</div>
-					<div>
-						<label>Description</label>
-						<textarea value={this.state.description} onChange={this._onSetDescription}/>
-					</div>
-					<div>
-						<label>Image</label>
-						<Dropzone ref='dropzone' onDrop={this._onDrop} multiple={false}>
-							<div>Try dropping some files here, or click to select files to upload.</div>
-						</Dropzone>
-						{this.state.files.length > 0 ? <div>
-						<h2>Uploading {this.state.files.length} files...</h2>
-						<div>{this.state.files.map((file) => <img src={file.preview} /> )}</div>
-						</div> : null}
-					</div>
-					<input type='submit' />
-				</form>
-			</div>
-		)
-	},
-	_onDrop: function(files) {
-		setImage(files)
-	},
-	_onSetName: function(event) {
-		setName(event.target.value)
-	},
-	_onSetMac: function(event) {
-		setMac(event.target.value)
-	},
-	_onSetType: function(event) {
-		setType(event.target.value)
-	},
-	_onSetDescription: function(event) {
-		setDescription(event.target.value)
-	},
-	_onSubmit: function(e) {
-		e.preventDefault()
-		createSensor()
-	},
-	_onChange: function() {
-		this.setState(Store.getFormData());
+	function mapDispatchToProps(dispatch) {
+		return {
+			setName: (name) => {
+				dispatch(actions.setName(name.target.value))
+			},
+			setMac: (mac) => {
+				dispatch(actions.setMac(mac.target.value))
+			},
+			setType: (type) => {
+				dispatch(actions.setType(type.target.value))
+			},
+			setDescription: (description) => {
+				dispatch(actions.setDescription(description.target.value))
+			},
+			setSensor: (sensor) => {
+			}
+		}
 	}
-})
-
-export default SensorForm
+)(SensorForm)

@@ -40,7 +40,7 @@ class TestSuite(object):
         return self.client.post(url_for('sensorlist'),
                                 data=dict(name=self.name, mac=self.mac,
                                           description=self.description,
-                                          type=self.plant_type))
+                                          plant_type=self.plant_type))
 
     def create_measure(self, humidity, temperature, floor_humidity):
         """
@@ -72,16 +72,16 @@ class TestSuite(object):
         assert response.json['name'] == self.name
         assert response.json['mac'] == self.mac
         assert response.json['description'] == self.description
-        assert response.json['type'] == self.plant_type
+        assert response.json['plant_type'] == self.plant_type
         assert response.json['image'] == ''
-        assert response.json['id'] != None
+        assert response.json['id'] is not None
         response = self.client.get(url_for('sensorlist'))
         assert response.status == '200 OK'
         assert response.json == {
             self.name: {
                 'description': self.description,
                 'mac': self.mac,
-                'type': self.plant_type,
+                'plant_type': self.plant_type,
                 'image': ''
             }
         }
@@ -93,7 +93,13 @@ class TestSuite(object):
         self.create_sensor()
         response = self.client.get(url_for('sensor', sensor_mac=self.mac))
         assert response.status == '200 OK'
-        assert response.json == {}
+        assert response.json == {
+            'description': self.description,
+            'mac': self.mac,
+            'plant_type': self.plant_type,
+            'image': '',
+            'name': self.name
+        }
 
     def test_5(self):
         """
@@ -111,10 +117,11 @@ class TestSuite(object):
         }
         response = self.client.get(url_for('sensor', sensor_mac=self.mac))
         assert response.status == '200 OK'
-        assert response.json[self.name]['description'] == self.description
-        assert response.json[self.name]['mac'] == self.mac
-        assert response.json[self.name]['type'] == self.plant_type
-        stats = response.json[self.name]['stats']
+        assert response.json['name'] == self.name
+        assert response.json['description'] == self.description
+        assert response.json['mac'] == self.mac
+        assert response.json['plant_type'] == self.plant_type
+        stats = response.json['stats']
         assert len(stats) == 1
         assert stats[0]['humidity'] == 40
         assert stats[0]['temperature'] == 25
@@ -129,10 +136,11 @@ class TestSuite(object):
         self.create_measure(42, 23, 400)
         response = self.client.get(url_for('sensor', sensor_mac=self.mac))
         assert response.status == '200 OK'
-        assert response.json[self.name]['description'] == self.description
-        assert response.json[self.name]['mac'] == self.mac
-        assert response.json[self.name]['type'] == self.plant_type
-        stats = response.json[self.name]['stats']
+        assert response.json['name'] == self.name
+        assert response.json['description'] == self.description
+        assert response.json['mac'] == self.mac
+        assert response.json['plant_type'] == self.plant_type
+        stats = response.json['stats']
         assert len(stats) == 3
         assert stats[0]['humidity'] == 40
         assert stats[0]['temperature'] == 25

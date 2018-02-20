@@ -1,27 +1,39 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom'
 
 /* Sensor Tile */
-var SensorTile = React.createClass({
-	displayName: "SensorTile",
-	contextTypes: {
-		router: React.PropTypes.object
-	},
-	handleClick: function(e) {
-		const path = '/graph/' + e.currentTarget.id
-		this.context.router.push(path)
-	},
-	render: function(e) {
+class SensorTile extends React.Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			redirect: false,
+			id: ''
+		}
+	}
+
+	render() {
 		const style = {
-			backgroundImage: 'url(' + this.props.children.image + ')'
+			backgroundImage: 'url(' + this.props.image + ')'
 		};
-		return(
-				<div className="col-xs-4 col-sm-3 col-lg-2" key={this.props.children.name} id={this.props.children.mac} onClick={this.handleClick}>
+		if (this.state.redirect) {
+			return(<Redirect push to={"/board/" + this.state.id}/>)
+		} else {
+			return(
+				<div className="col-xs-4 col-sm-3 col-lg-2" key={this.props.name} id={this.props.mac} onClick={() => this.handleClick()}>
 					<div className="thumbnail" style={style}>
- 						{this.props.children.name}
+ 						{this.props.name}
 					</div>
 				</div>
-			  );
+			)
+		}
 	}
-});
+
+	handleClick() {
+		this.setState({
+			redirect: true,
+			id: this.props.mac
+		})
+	}
+}
 
 export default SensorTile

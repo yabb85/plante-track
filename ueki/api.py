@@ -10,6 +10,7 @@ from flask_restful import Api
 from flask_restful import Resource
 from flask_restful import reqparse
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 from ueki.models import DATA_BASE
 from ueki.models import Sensor as db_sensor
 from ueki.models import Stats as db_stats
@@ -32,7 +33,7 @@ class Sensor(Resource):
         self.put_parser = reqparse.RequestParser()
         self.put_parser.add_argument('name')
         self.put_parser.add_argument('mac')
-        self.put_parser.add_argument('type')
+        self.put_parser.add_argument('plant_type')
         self.put_parser.add_argument('description')
         self.put_parser.add_argument('file',
                                      type=datastructures.FileStorage,
@@ -51,26 +52,38 @@ class Sensor(Resource):
                                               db_sensor.id)
         stats = other_query.all()
         for sensor, stat in stats:
-            if sensor.name in result:
-                result[sensor.name]['stats'].append({
+            if 'name' in result:
+                result['stats'].append({
                     'temperature': stat.temperature,
                     'humidity': stat.humidity,
+                    'floor_humidity': stat.floor_humidity,
                     'date': stat.time.isoformat()
                 })
             else:
-                result[sensor.name] = {
+                result = {
+                    'name': sensor.name,
                     'mac': sensor.mac,
                     'description': sensor.description,
-                    'type': sensor.plant_type,
+                    'plant_type': sensor.plant_type,
                     'image': sensor.image,
                     'stats': [
                         {
                             'temperature': stat.temperature,
                             'humidity': stat.humidity,
+                            'floor_humidity': stat.floor_humidity,
                             'date': stat.time.isoformat()
                         }
                     ]
                 }
+        if not result:
+            query = DATA_BASE.session.query(db_sensor).filter(
+                db_sensor.mac == sensor_mac)
+            sensor = query.first()
+            result['name'] = sensor.name
+            result['mac'] = sensor.mac
+            result['description'] = sensor.description
+            result['plant_type'] = sensor.plant_type
+            result['image'] = sensor.image
         return result
 
     def post(self, sensor_mac):
@@ -78,7 +91,6 @@ class Sensor(Resource):
         Save mesure for selected sensor
         """
         args = self.post_parser.parse_args()
-        print(args)
         temp = args['temp']
         humidity = args['humidity']
         floor_humidity = args['floor_humidity']
@@ -104,7 +116,7 @@ class Sensor(Resource):
         args = self.put_parser.parse_args()
         name = args['name']
         description = args['description']
-        plant_type = args['type']
+        plant_type = args['plant_type']
         image = args['file']
         sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac).first()
         if not sensor:
@@ -133,7 +145,7 @@ class SensorList(Resource):
         self.parser.add_argument('name')
         self.parser.add_argument('mac')
         self.parser.add_argument('description')
-        self.parser.add_argument('type')
+        self.parser.add_argument('plant_type')
         self.parser.add_argument('file',
                                  type=datastructures.FileStorage,
                                  location='files')
@@ -145,7 +157,7 @@ class SensorList(Resource):
         for row in sensors:
             result[row.name] = {'mac': row.mac,
                                 'description': row.description,
-                                'type': row.plant_type,
+                                'plant_type': row.plant_type,
                                 'image': row.image}
         return result
 
@@ -155,21 +167,24 @@ class SensorList(Resource):
         name = args['name']
         mac = args['mac']
         description = args['description']
-        plant_type = args['type']
-        image = args['file']
+        plant_type = args['plant_type']
+        file_image = args['file']
         url = ''
-        if image:
-            filename = uploaded_image.save(image)
+        if file_image:
+            filename = uploaded_image.save(file_image)
             url = uploaded_image.url(filename)
         sensor = db_sensor(name, mac, description, plant_type, url)
-        DATA_BASE.session.add(sensor)
-        DATA_BASE.session.commit()
+        try:
+            DATA_BASE.session.add(sensor)
+            DATA_BASE.session.commit()
+        except IntegrityError:
+            return {'message': 'this name already exist'}, 409
         return {
             'id': sensor.id,
             'name': sensor.name,
             'mac': sensor.mac,
             'description': sensor.description,
-            'type': sensor.plant_type,
+            'plant_type': sensor.plant_type,
             'image': sensor.image
         }
 

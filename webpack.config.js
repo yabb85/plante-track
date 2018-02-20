@@ -1,22 +1,22 @@
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var extractCSS = new ExtractTextPlugin('app.css');
+const path = require('path')
+process.traceDeprecation = true;
 
 module.exports = {
 	entry: {
 		app: [
-			'./css/app.css',
-			'./js/app.js'
+			path.join(__dirname, 'css/app.css'),
+			path.join(__dirname, 'js/app.js')
 		]
 	},
 	output: {
-		path: './ueki/static/',
+		path: path.join(__dirname, 'ueki/static/'),
 		filename: 'app.js'
 	},
 	module: {
 		loaders: [
 			{
 				test: /\.js$/,
-				loader: 'babel',
+				loader: 'babel-loader',
 				exclude: /(node_modules|bower_components)/,
 				query: {
 					presets: ['react', 'es2015'],
@@ -25,15 +25,14 @@ module.exports = {
 			},
 			{
 				test: /\.css$/,
-				loader: extractCSS.extract(['css'])
+				use: [ 'style-loader', 'css-loader']
 			},
 			{
 				test: /\.json$/,
-				loader: 'json'
+				loader: 'json-loader'
 			}
 		]
 	},
 	plugins: [
-		extractCSS
 	]
 }

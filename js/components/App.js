@@ -1,19 +1,15 @@
 import React from 'react';
-import { IndexLink, Link } from 'react-router'
+import { Link } from 'react-router-dom'
+import { BrowserRouter, Route } from 'react-router-dom';
 import SensorList from './SensorList'
 import SensorBoard from './SensorBoard'
 import SensorForm from './SensorForm'
-import SensorEdit from './SensorEdit'
 
 
-var App = React.createClass({
-	displayName: "Application",
-	getInitialState() {
-		return {
-		}
-	},
-	render: function() {
+class App extends React.Component {
+	render() {
 		return(
+			<BrowserRouter>
 				<div>
 					<nav className="navbar navbar-inverse navbar-fixed-top" role="navigation">
 						<div className="container">
@@ -24,15 +20,15 @@ var App = React.createClass({
 									<span className="icon-bar"></span>
 									<span className="icon-bar"></span>
 								</button>
-								<IndexLink to="/" className="navbar-brand">Ueki</IndexLink>
+								<Link to="/"><span className="navbar-brand">Ueki</span></Link>
 							</div>
 							<div id="navbar" className="navbar-collapse collapse">
 								<ul className="nav navbar-nav navbar-right">
 									<li>
-										<Link to="/sensors">Liste</Link>
+										<Link to="/add_sensor">Ajouter un capteur</Link>
 									</li>
 									<li>
-										<Link to="/add_sensor">Ajouter catpeur</Link>
+										toto
 									</li>
 								</ul>
 							</div>
@@ -40,12 +36,15 @@ var App = React.createClass({
 					</nav>
 					<div className="container">
 						<div className="starter-template">
-							{this.props.children}
+							<Route exact path='/' component={SensorList} />
+							<Route path='/board/:mac' component={SensorBoard} />
+							<Route path="/add_sensor" component={SensorForm}/>
 						</div>
 					</div>
 				</div>
-			  );
+			</BrowserRouter>
+		);
 	}
-});
+}
 
 export default App

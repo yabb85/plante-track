@@ -25,8 +25,8 @@ class Sensor(DATA_BASE.Model):
     Interface of sensors table
     """
     __tablename__ = 'sensors'
-    id = Column(String(35), primary_key=True, unique=True)
-    name = Column(String(50))
+    id = Column(String(35))
+    name = Column(String(50), primary_key=True, unique=True)
     mac = Column(String(16))
     description = Column(Text())
     plant_type = Column(String(100))
@@ -48,12 +48,11 @@ class Stats(DATA_BASE.Model):
     Interface of stats table
     """
     __tablename__ = 'stats'
-    id = Column(String(35), primary_key=True, unique=True)
-    id_sensor = Column(String(35), ForeignKey('sensors.id'), nullable=False)
+    id_sensor = Column(String(35), ForeignKey('sensors.id'), primary_key=True)
     temperature = Column(Integer)
     humidity = Column(Integer)
     floor_humidity = Column(Integer)
-    time = Column(DateTime())
+    time = Column(DateTime(), primary_key=True)
 
     def __init__(self, id_sensor, temperature, humidity, floor_humidity, time):
         DATA_BASE.Model.__init__(self)

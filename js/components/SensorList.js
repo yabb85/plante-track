@@ -1,46 +1,49 @@
 import React from 'react';
 import SensorTile from './SensorTile'
-import Actions from '../actions/Action'
-import Store from '../stores/Store'
+import {connect } from 'react-redux'
+import * as actions from '../redux/action'
 
-function getSensorListState() {
-	return Store.getSensorList();
-}
 
 /* Sensor List */
-var SensorList = React.createClass({
-	displayName: "SensorList",
-	getInitialState: function() {
-		return getSensorListState();
-	},
-	componentWillMount: function() {
-		Store.removeChangeListener(this._onChange);
-	},
-	componentDidMount: function() {
-		Store.addChangeListener(this._onChange);
-		this._onInit();
-	},
-	componentWillUnmount: function() {
-		Store.removeChangeListener(this._onChange);
-	},
-	render: function() {
-		var createItem = function(item) {
-			return(
-				<SensorTile key={item.name}>{item}</SensorTile>
-			);
-		};
+class SensorList extends React.Component {
+	constructor(props) {
+		super(props)
+	}
+
+	componentWillMount() {
+		this.props.loadSensorList()
+	}
+
+	render() {
 		return(
 			<div className="row">
-				{this.state.sensors.map(createItem)}
+				{this.props.sensors.map(item => this.createTile(item))}
 			</div>
 		);
-	},
-	_onInit: function() {
-		Actions.loadSensorList();
-	},
-	_onChange: function() {
-		this.setState(getSensorListState());
 	}
-});
 
-export default SensorList
+	createTile(item) {
+		return(
+			<SensorTile key={item.get('name')} name={item.get('name')} mac={item.get('mac')}></SensorTile>
+		);
+	};
+}
+
+export default connect(
+	function mapStateToProps(state) {
+		return {sensors: state.sensors_list}
+	},
+	function mapDispatchToProps(dispatch) {
+		return {
+			loadSensorList: () => {
+				fetch("/sensors")
+					.then(function(response) {
+						return response.json()
+					})
+					.then(async function(data) {
+						dispatch(actions.setSensorList(data))
+					});
+			}
+		}
+	}
+)(SensorList)

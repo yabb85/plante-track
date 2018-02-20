@@ -1,83 +1,85 @@
 import React from 'react';
-import Actions from '../actions/Action'
-import Store from '../stores/Store'
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
+import { connect } from 'react-redux'
+import * as actions from '../redux/action'
+import SensorGraph from './SensorGraph.js'
 
-function getGraphState() {
-	return Store.getCurrentGraph();
-}
+/* Sensor Dashboard */
+class SensorBoard extends React.Component {
+	constructor(props) {
+		super(props)
+	}
 
-/* Graph */
-var SensorBoard = React.createClass({
-	displayName: "SensorBoard",
-	getInitialState: function() {
-		return getGraphState();
-	},
-	componentWillMount: function() {
-		Store.removeChangeListener(this._onChange);
-	},
-    componentDidMount: function() {
-		Store.addChangeListener(this._onChange);
-		let chartCanvas = this.refs.chart;
-		this._onInit(chartCanvas);
-    },
-	componentDidUpdate: function () {
-		let chart = this.state.chart;
-		chart.data.datasets[0].data = this.state.humidity;
-		chart.data.datasets[1].data = this.state.temp;
-		chart.data.labels = this.state.label;
-		chart.update();
-	},
-	componentWillUnmount: function() {
-		Store.removeChangeListener(this._onChange);
-	},
-    render: function() {
+	componentWillMount() {
+		this.props.loadSensorData(this.props.match.params.mac)
+	}
+
+	componentWillUnmount() {
+		this.props.cleanSensorData()
+	}
+
+    render() {
         return (
             <div>
 				<div className="row">
 					<div className="col-md-5">
-						<span>{this.state.name}</span>
+						<span>{this.props.name}</span>
 					</div>
 					<div className="col-md-6">
 						<div className="row">
 							<div className="col-md-7">
-								<span>{this.state.type}</span>
+								<span>{this.props.plant_type}</span>
 							</div>
 							<div className="col-md-7">
-								<span>{this.state.description}</span>
+								<span>{this.props.description}</span>
 							</div>
 						</div>
 					</div>
 					<div className="col-md-1">
-						<Link to={'/edit_sensor/' + this.props.params.mac }>
+						<Link to={'/edit_sensor/' + this.props.match.params.mac }>
 							edit <span className='glyphicon glyphicon-pencil'/>
 						</Link>
 					</div>
 				</div>
 				<div className="row">
-					<canvas ref={'chart'}></canvas>
+					<SensorGraph label='Température' labels={this.props.date} data={this.props.temperature} backgroundColor='rgba(255, 99, 132, 0.4)' borderColor='rgba(255, 99, 132, 1)' />
+					<SensorGraph label='Humidité' labels={this.props.date} data={this.props.humidity} backgroundColor='rgba(54, 162, 235, 0.4)' borderColor='rgba(54, 162, 235, 1)' />
+					<SensorGraph label='Humidité au sol' labels={this.props.date} data={this.props.floor_humidity} backgroundColor='rgba(75, 192, 192, 0.4)' borderColor='rgba(75, 192, 192, 1)' />
 					<button onClick={this._onBack}>Back</button>
-					<button onClick={this._onUpdate}>Reload</button>
+					<button onClick={() => {this.props.loadSensorData(this.props.match.params.mac)}}>Reload</button>
 				</div>
             </div>
         );
-    },
-	contextTypes: {
-		router: React.PropTypes.object
-	},
-	_onUpdate: function() {
-		Actions.updateGraph(this.props.params.mac);
-	},
-	_onInit: function(canvas) {
-		Actions.loadGraph(canvas, this.props.params.mac);
-	},
-	_onBack: function() {
-		Store.removeChangeListener(this._onChange);
-		this.context.router.push('/')
-	},
-	_onChange: function() {
-		this.setState(getGraphState());
-	}
-});
+    }
+}
 
-export default SensorBoard
+export default connect(
+	function mapStateToProps(state) {
+		return {
+			name: state.sensor.get('name'),
+			description: state.sensor.get('description'),
+			plant_type: state.sensor.get('plant_type'),
+			date: state.sensor.get('date').toArray(),
+			temperature: state.sensor.get('temperature').toArray(),
+			humidity: state.sensor.get('humidity').toArray(),
+			floor_humidity: state.sensor.get('floor_humidity').toArray()
+		}
+	},
+	function mapDispatchToProps(dispatch) {
+		return {
+			loadSensorData: (mac) => {
+				fetch("/sensors/" + mac)
+					.then(function(response) {
+						return response.json()
+					})
+					.then(async function(data) {
+						dispatch(actions.getSensorData(data))
+					});
+			},
+			cleanSensorData: () => {
+				dispatch(actions.getSensorData(null))
+			}
+		}
+
+	}
+)(SensorBoard)
