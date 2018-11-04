@@ -1,125 +1,64 @@
 import React from 'react'
 import Dropzone from 'react-dropzone'
-import EventEmitter from 'events'
-import $ from 'jquery';
-import { parseSensor } from '../utils/utils.js'
+import { connect } from 'react-redux'
+import * as actions from '../redux/action'
 
-var CHANGE_EVENT = 'change_create_sensor'
-// local storage
-var _form_data = {
-	file: null,
-	name: '',
-	mac: '',
-	type: '',
-	description: '',
-	image: ''
-}
 
-//local store
-var Store = Object.assign({}, EventEmitter.prototype, {
-	getFormData: function() {
-		return _form_data
-	},
-
-	emitChange: function() {
-		this.emit(CHANGE_EVENT)
-	},
-
-	addChangeListener: function(callback) {
-		this.on(CHANGE_EVENT, callback)
-	},
-
-	removeChangeListener: function(callback) {
-		this.removeListener(CHANGE_EVENT, callback)
+class SensorEdit extends React.Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			name: props.name,
+			mac: props.mac,
+			plant_type: props.plant_type,
+			description: props.description,
+			file: null,
+			image: ''
+		}
+		this._onSetName = this._onSetName.bind(this)
+		this._onSetMac = this._onSetMac.bind(this)
+		this._onSetType = this._onSetType.bind(this)
+		this._onSetDescription = this._onSetDescription.bind(this)
+		this._onDrop = this._onDrop.bind(this)
+		this._onSubmit = this._onSubmit.bind(this)
 	}
-})
 
+	componentWillMount() {
+	}
 
-function loadData(address) {
-	let url = '/sensors/' + address
-	return $.ajax({
-		url: url,
-		type: 'GET',
-		success: function(data) {
-			data = parseSensor(data)
-			_form_data.type = data.type
-			_form_data.mac = data.mac
-			_form_data.name = data.name
-			_form_data.description = data.description
-			_form_data.image = data.image
-			Store.emitChange()
-		}
-	})
-}
+	componentDidMount() {
+		this.props.loadSensorData(this.props.match.params.mac)
+	}
 
-function setImage(files) {
-	_form_data.file = files[0]
-	Store.emitChange()
-}
+	componentWillUnmount() {
+	}
 
-function setName(name) {
-	_form_data.name = name
-	Store.emitChange()
-}
+	componentWillReceiveProps(nextProps) {
+		let newState = this.state
+		newState.name = nextProps.name
+		newState.mac = nextProps.mac
+		newState.plant_type = nextProps.plant_type
+		newState.description = nextProps.description
+		newState.file = null
+		newState.image = nextProps.image
+		this.setState(newState)
+	}
 
-function setMac(address) {
-	_form_data.mac = address
-	Store.emitChange()
-}
-
-function setType(type) {
-	_form_data.type = type
-	Store.emitChange()
-}
-
-function setDescription(description) {
-	_form_data.description = description
-	Store.emitChange()
-}
-
-function updateSensor(data) {
-	var form_data = new FormData()
-	$.each(data, function(key, value) {
-		form_data.append(key, value)
-	})
-	let url = '/sensors/' + data.mac
-	return $.ajax({
-		url: url,
-		type: 'PUT',
-		cache: false,
-		data: form_data,
-		dataType: 'json',
-		processData: false,
-		contentType: false,
-		success: function(data) {
-			console.log(data)
-		}
-	})
-}
-
-var SensorEdit = React.createClass({
-	displayName: 'SensorEdit',
-	getInitialState: function() {
-		return Store.getFormData()
-	},
-	componentWillMount: function() {
-		Store.removeChangeListener(this._onChange)
-	},
-	componentDidMount: function() {
-		Store.addChangeListener(this._onChange)
-		this._onInit(this.props.params.mac)
-	},
-	componentWillUnmount: function() {
-		Store.removeChangeListener(this._onChange)
-	},
-	render: function() {
+	render() {
+		console.log('render')
 		if (this.state.file != null) {
 			var style = {
-				backgroundImage: 'url(' + this.state.file.preview + ')'
+				backgroundImage: 'url(' + this.state.file.preview + ')',
+				backgroundRepeat: 'no-repeat',
+				backgroundSize: 'contain',
+				height: '200px'
 			}
 		} else {
 			var style = {
-				backgroundImage: 'url(' + this.state.image + ')'
+				backgroundImage: 'url(' + this.state.image + ')',
+				backgroundRepeat: 'no-repeat',
+				backgroundSize: 'contain',
+				height: '200px'
 			}
 		}
 		return (
@@ -136,7 +75,7 @@ var SensorEdit = React.createClass({
 					</div>
 					<div>
 						<label>Type de plante</label>
-						<input type='text' value={this.state.type} onChange={this._onSetType}/>
+						<input type='text' value={this.state.plant_type} onChange={this._onSetType}/>
 					</div>
 					<div>
 						<label>Description</label>
@@ -152,31 +91,90 @@ var SensorEdit = React.createClass({
 				</form>
 			</div>
 		)
-	},
-	_onChange: function() {
-		this.setState(Store.getFormData())
-	},
-	_onInit: function(address) {
-		loadData(address)
-	},
-	_onSetName: function(event) {
-		setName(event.target.value)
-	},
-	_onSetMac: function(event) {
-		setMac(event.target.value)
-	},
-	_onSetType: function(event) {
-		setType(event.target.value)
-	},
-	_onSetDescription: function(event) {
-		setDescription(event.target.value)
-	},
-	_onSubmit: function() {
-		updateSensor(_form_data)
-	},
-	_onDrop: function(files) {
-		setImage(files)
 	}
-})
 
-export default SensorEdit
+	_onSetName(event) {
+		let newState = this.state
+		newState.name = event.target.value
+		this.setState(newState)
+	}
+
+	_onSetMac(event) {
+		let newState = this.state
+		newState.mac = event.target.value
+		this.setState(newState)
+	}
+
+	_onSetType(event) {
+		let newState = this.state
+		newState.plant_type = event.target.value
+		this.setState(newState)
+	}
+
+	_onSetDescription(event) {
+		let newState = this.state
+		newState.description = event.target.value
+		this.setState(newState)
+	}
+
+	_onDrop(files) {
+		let newState = this.state
+		newState.file = files[0]
+		this.setState(newState)
+	}
+
+	_onSubmit(event) {
+		event.preventDefault()
+		console.log('on submit')
+		var myHeaders = new Headers()
+		myHeaders.append('Content-Type', 'application/json')
+		let sensors = {
+			name: this.state.name,
+			mac: this.state.mac,
+			plant_type: this.state.plant_type,
+			description: this.state.description,
+			file: this.state.file
+		}
+		fetch('/sensors/' + this.props.match.params.mac, {
+			method: 'PUT',
+			body: JSON.stringify(sensors),
+			headers: myHeaders
+		})
+		.then(function(response) {
+			return response.json()
+		})
+		.then(async function(data) {
+			console.log(data)
+		})
+		return false
+	}
+}
+
+export default connect(
+	function mapStateToProps(state) {
+		return {
+			name: state.sensor.get('name'),
+			description: state.sensor.get('description'),
+			plant_type: state.sensor.get('plant_type'),
+			mac: state.sensor.get('mac'),
+			image: state.sensor.get('image'),
+		}
+	},
+	function mapDispatchToProps(dispatch) {
+		return {
+			loadSensorData: (mac) => {
+				fetch("/sensors/" + mac)
+					.then(function(response) {
+						return response.json()
+					})
+					.then(async function(data) {
+						dispatch(actions.getSensorData(data))
+					});
+			},
+			cleanSensorData: () => {
+				dispatch(actions.getSensorData(null))
+			}
+		}
+
+	}
+)(SensorEdit)

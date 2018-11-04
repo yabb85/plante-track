@@ -129,6 +129,14 @@ class Sensor(Resource):
             url = uploaded_image.url(filename)
             sensor.image = url
         DATA_BASE.session.commit()
+        sensor_dict = {
+            'name': sensor.name,
+            'mac': sensor.mac,
+            'plant_type': sensor.plant_type,
+            'description': sensor.description,
+            'image': sensor.image
+        }
+        return sensor_dict, 200
 
     def delete(self, sensor_mac):
         """remove one sensor"""

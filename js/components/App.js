@@ -4,6 +4,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import SensorList from './SensorList'
 import SensorBoard from './SensorBoard'
 import SensorForm from './SensorForm'
+import SensorEdit from './SensorEdit'
 
 
 class App extends React.Component {
@@ -39,6 +40,7 @@ class App extends React.Component {
 							<Route exact path='/' component={SensorList} />
 							<Route path='/board/:mac' component={SensorBoard} />
 							<Route path="/add_sensor" component={SensorForm}/>
+							<Route path='/edit_sensor/:mac' component={SensorEdit} />
 						</div>
 					</div>
 				</div>

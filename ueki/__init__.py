@@ -16,9 +16,6 @@ from .models import DATA_BASE
 from .api import api
 from .upload import uploaded_image
 from .views import simple_page
-from .mqtt import client
-from .mqtt import mqtt
-from .mqtt import socketio
 
 
 def create_app(settings=None):
@@ -35,9 +32,6 @@ def create_app(settings=None):
     api.init_app(app)
     compress = Compress()
     compress.init_app(app)
-    socketio.init_app(app)
-    mqtt.init_app(app)
-    mqtt.subscribe('#')
 
     configure_uploads(app, uploaded_image)
 
@@ -46,9 +40,6 @@ def create_app(settings=None):
     app.logger.addHandler(handler)
     logger = getLogger('werkzeug')
     logger.addHandler(handler)
-    client.connect('127.0.0.1', 1883)
-    client.loop_start()
-    client.subscribe("#")
 
     return app
 
