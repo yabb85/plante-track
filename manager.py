@@ -13,17 +13,24 @@ from ueki import create_db
 
 SETTINGS = {
     'SQLALCHEMY_DATABASE_URI': 'sqlite:///test.db',
-    'UPLOADS_DEFAULT_DEST': '/tmp/upload'
+    'UPLOADS_DEFAULT_DEST': '/tmp/upload',
+    'MQTT_CLIENT_ID': 'ueki',
+    'MQTT_BROKER_URL': 'localhost',
+    'MQTT_BROKER_PORT': '1883',
+    'MQTT_USERNAME': '',
+    'MQTT_PASSWORD': ''
 }
 app = create_app(SETTINGS)
 
 manager = Manager(app)
 manager.add_command('runserver', Server(host='0.0.0.0', port=5000))
 
+
 @app.errorhandler(500)
 def internal_error(exception):
     app.logger.error(exception)
     return 500
+
 
 @manager.command
 def initdb():

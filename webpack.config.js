@@ -1,23 +1,20 @@
 const path = require('path')
-process.traceDeprecation = true;
 
 module.exports = {
+	mode: 'production',
 	entry: {
-		app: [
-			path.join(__dirname, 'css/app.css'),
-			path.join(__dirname, 'js/app.js')
-		]
+		'app': path.join(__dirname, 'js/app.js')
 	},
 	output: {
 		path: path.join(__dirname, 'ueki/static/'),
 		filename: 'app.js'
 	},
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /\.js$/,
-				loader: 'babel-loader',
 				exclude: /(node_modules|bower_components)/,
+				loader: 'babel-loader',
 				query: {
 					presets: ['react', 'es2015'],
 					comments: false
@@ -27,10 +24,6 @@ module.exports = {
 				test: /\.css$/,
 				use: [ 'style-loader', 'css-loader']
 			},
-			{
-				test: /\.json$/,
-				loader: 'json-loader'
-			}
 		]
 	},
 	plugins: [

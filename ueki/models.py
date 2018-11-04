@@ -34,7 +34,7 @@ class Sensor(DATA_BASE.Model):
 
     def __init__(self, name, mac, description, plant_type, image):
         """docstring for __init__"""
-        DATA_BASE.Model.__init__(self)
+        # DATA_BASE.Model.__init__(self)
         self.id = uuid4().hex
         self.name = name
         self.mac = mac
@@ -55,7 +55,7 @@ class Stats(DATA_BASE.Model):
     time = Column(DateTime(), primary_key=True)
 
     def __init__(self, id_sensor, temperature, humidity, floor_humidity, time):
-        DATA_BASE.Model.__init__(self)
+        # DATA_BASE.Model.__init__(self)
         self.id = uuid4().hex
         self.id_sensor = id_sensor
         self.temperature = temperature

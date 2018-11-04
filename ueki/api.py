@@ -27,7 +27,7 @@ class Sensor(Resource):
     def __init__(self):
         """docstring for __init__"""
         self.post_parser = reqparse.RequestParser()
-        self.post_parser.add_argument('temp')
+        self.post_parser.add_argument('temperature')
         self.post_parser.add_argument('humidity')
         self.post_parser.add_argument('floor_humidity')
         self.put_parser = reqparse.RequestParser()
@@ -91,7 +91,7 @@ class Sensor(Resource):
         Save mesure for selected sensor
         """
         args = self.post_parser.parse_args()
-        temp = args['temp']
+        temp = args['temperature']
         humidity = args['humidity']
         floor_humidity = args['floor_humidity']
         sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac).first()
