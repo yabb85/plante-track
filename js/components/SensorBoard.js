@@ -24,6 +24,7 @@ class SensorBoard extends React.Component {
 				<div className="row">
 					<div className="col-md-5">
 						<span>{this.props.name}</span>
+						<img src={this.props.image} />
 					</div>
 					<div className="col-md-6">
 						<div className="row">
@@ -60,6 +61,7 @@ export default connect(
 			description: state.sensor.get('description'),
 			plant_type: state.sensor.get('plant_type'),
 			date: state.sensor.get('date').toArray(),
+			image: state.sensor.get('image'),
 			temperature: state.sensor.get('temperature').toArray(),
 			humidity: state.sensor.get('humidity').toArray(),
 			floor_humidity: state.sensor.get('floor_humidity').toArray()
@@ -73,6 +75,7 @@ export default connect(
 						return response.json()
 					})
 					.then(async function(data) {
+						console.log(data)
 						dispatch(actions.getSensorData(data))
 					});
 			},

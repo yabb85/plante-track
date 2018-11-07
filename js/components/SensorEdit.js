@@ -45,7 +45,6 @@ class SensorEdit extends React.Component {
 	}
 
 	render() {
-		console.log('render')
 		if (this.state.file != null) {
 			var style = {
 				backgroundImage: 'url(' + this.state.file.preview + ')',
@@ -125,19 +124,17 @@ class SensorEdit extends React.Component {
 
 	_onSubmit(event) {
 		event.preventDefault()
-		console.log('on submit')
 		var myHeaders = new Headers()
-		myHeaders.append('Content-Type', 'application/json')
-		let sensors = {
-			name: this.state.name,
-			mac: this.state.mac,
-			plant_type: this.state.plant_type,
-			description: this.state.description,
-			file: this.state.file
-		}
+		//myHeaders.append('Content-Type', 'application/json')
+		var formData = new FormData()
+		formData.append('name', this.state.name)
+		formData.append('mac', this.state.mac)
+		formData.append('plant_type', this.state.plant_type)
+		formData.append('description', this.state.description)
+		formData.append('file', this.state.file)
 		fetch('/sensors/' + this.props.match.params.mac, {
 			method: 'PUT',
-			body: JSON.stringify(sensors),
+			body: formData,
 			headers: myHeaders
 		})
 		.then(function(response) {

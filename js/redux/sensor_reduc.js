@@ -15,7 +15,6 @@ export default function sensor_reduc(state = sensor, action) {
 			return state.set('description', action.description)
 		case 'GET_SENSOR_DATA':
 			var newState = sensor
-			console.log(action.sensor)
 			if (action.sensor != null) {
 				newState = newState.set('name', action.sensor.name)
 				newState = newState.set('mac', action.sensor.mac)
