@@ -31,6 +31,9 @@ class Sensor(DATA_BASE.Model):
     description = Column(Text())
     plant_type = Column(String(100))
     image = Column(String(200))
+    limit_temperature = Column(Integer)
+    limit_humidity = Column(Integer)
+    limit_soil_hum = Column(Integer)
 
     def __init__(self, name, mac, description, plant_type, image):
         """docstring for __init__"""
