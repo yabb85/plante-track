@@ -20,6 +20,16 @@ body {
 	height: 100px
 }
 
+.title {
+	font-size: 1.5em;
+}
+
+.logo {
+	height: 200px;
+	width: 200px;
+	border-radius: 5px;
+}
+
 canvas {
 	width: 100% !important;
 	max-height: 300px !important;
@@ -30,4 +40,19 @@ canvas {
 		width: 100% !important;
 		height: 75% !important;
 	}
+}
+
+.icon {
+	border-radius: 50px;
+	width: 75px;
+	height: 75px;
+	background-color: #eaeaea;
+	line-height: 1.5;
+	font-size: 50px;
+	margin: 5px 5px 5px 5px;
+	float: left;
+}
+
+.active {
+	background-color: #36a2eb
 }

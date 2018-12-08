@@ -1,8 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCircle } from '@fortawesome/free-solid-svg-icons'
+import { faSun } from '@fortawesome/free-solid-svg-icons'
+import { faThermometerHalf } from '@fortawesome/free-solid-svg-icons'
+import { faTint } from '@fortawesome/free-solid-svg-icons'
 import * as actions from '../redux/action'
 import SensorGraph from './SensorGraph.js'
+import SensorMeasure from './SensorMeasure.js'
 
 /* Sensor Dashboard */
 class SensorBoard extends React.Component {
@@ -22,33 +28,40 @@ class SensorBoard extends React.Component {
         return (
             <div>
 				<div className="row">
-					<div className="col-md-5">
-						<span>{this.props.name}</span>
-						<img src={this.props.image} />
+					<div className="col">
+						<div>
+							<Link to={'/edit_sensor/' + this.props.match.params.mac }>
+								edit <span className='glyphicon glyphicon-pencil'/>
+							</Link>
+						</div>
 					</div>
-					<div className="col-md-6">
+				</div>
+				<div className="row">
+					<div className="col-md-4">
+						<div className="title">{this.props.name}</div>
+						<img className="logo" src={this.props.image} />
+					</div>
+					<div className="col-md-4">
 						<div className="row">
-							<div className="col-md-7">
+							<div className="col-md-6">
 								<span>{this.props.plant_type}</span>
 							</div>
-							<div className="col-md-7">
+						</div>
+						<div className="row">
+							<div className="col-md-6">
 								<span>{this.props.description}</span>
 							</div>
 						</div>
-					</div>
-					<div className="col-md-1">
-						<Link to={'/edit_sensor/' + this.props.match.params.mac }>
-							edit <span className='glyphicon glyphicon-pencil'/>
-						</Link>
 					</div>
 				</div>
 				<div className="row">
 					<SensorGraph label='Température' labels={this.props.date} data={this.props.temperature} backgroundColor='rgba(255, 99, 132, 0.4)' borderColor='rgba(255, 99, 132, 1)' />
 					<SensorGraph label='Humidité' labels={this.props.date} data={this.props.humidity} backgroundColor='rgba(54, 162, 235, 0.4)' borderColor='rgba(54, 162, 235, 1)' />
-					<SensorGraph label='Humidité au sol' labels={this.props.date} data={this.props.floor_humidity} backgroundColor='rgba(75, 192, 192, 0.4)' borderColor='rgba(75, 192, 192, 1)' />
+					<SensorGraph label='Humidité au sol' labels={this.props.date} data={this.props.floor_humidity} backgroundColor='rgba(16, 232, 167, 0.4)' borderColor='rgba(16, 232, 167, 1)' />
 					<button onClick={this._onBack}>Back</button>
 					<button onClick={() => {this.props.loadSensorData(this.props.match.params.mac)}}>Reload</button>
 				</div>
+				<SensorMeasure match={this.props.match} date={this.props.date} temperature={this.props.temperature} humidity={this.props.humidity} floor_humidity={this.props.floor_humidity}/>
             </div>
         );
     }

@@ -1,13 +1,16 @@
 const path = require('path')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const CompressionPlugin = require("compression-webpack-plugin")
 
 module.exports = {
 	mode: 'production',
 	entry: {
-		'app': path.join(__dirname, 'js/app.js')
+		'app': path.join(__dirname, 'js/app.js'),
+		'style': path.join(__dirname, 'css/app.css')
 	},
 	output: {
 		path: path.join(__dirname, 'ueki/static/'),
-		filename: 'app.js'
+		filename: '[name].js'
 	},
 	module: {
 		rules: [
@@ -22,10 +25,19 @@ module.exports = {
 			},
 			{
 				test: /\.css$/,
-				use: [ 'style-loader', 'css-loader']
+				use: [
+					MiniCssExtractPlugin.loader,
+					'css-loader'
+				]
 			},
 		]
 	},
 	plugins: [
+		new CompressionPlugin({
+			cache: true
+		}),
+		new MiniCssExtractPlugin({
+			filename: "[name].css",
+		})
 	]
 }
