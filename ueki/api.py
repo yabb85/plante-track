@@ -42,11 +42,6 @@ class Sensor(Resource):
     def get(self, sensor_mac):
         """return measures for one sensor"""
         result = {}
-        # sensor = db_sensor.query.filter(db_sensor.mac == sensor_mac)
-        # stats_query = db_stats.query.join(sensor).add_columns(
-        # db_sensor.description, db_sensor.name, db_sensor.plant_type).order_by(
-        # db_stats.time)
-        # print(stats_query)
         other_query = DATA_BASE.session.query(db_sensor, db_stats).filter(
             db_sensor.mac == sensor_mac).join(db_stats, db_stats.id_sensor ==
                                               db_sensor.id)
@@ -163,10 +158,12 @@ class SensorList(Resource):
         result = {}
         sensors = db_sensor.query.all()
         for row in sensors:
-            result[row.name] = {'mac': row.mac,
-                                'description': row.description,
-                                'plant_type': row.plant_type,
-                                'image': row.image}
+            result[row.name] = {
+                'mac': row.mac,
+                'description': row.description,
+                'plant_type': row.plant_type,
+                'image': row.image
+            }
         return result
 
     def post(self):

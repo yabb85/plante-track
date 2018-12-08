@@ -4,7 +4,7 @@
 Unit tests
 """
 
-
+from __future__ import unicode_literals
 import pytest
 import urllib2
 from flask import url_for
@@ -47,7 +47,8 @@ class TestSuite(object):
         Execute a request to add a new measure for specified sensor
         """
         return self.client.post(url_for('sensor', sensor_mac=self.mac),
-                                data=dict(humidity=humidity, temp=temperature,
+                                data=dict(humidity=humidity,
+                                          temperature=temperature,
                                           floor_humidity=floor_humidity))
 
     def test_1(self):
