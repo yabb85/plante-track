@@ -35,7 +35,7 @@ def create_app(settings=None):
 
     configure_uploads(app, uploaded_image)
 
-    handler = RotatingFileHandler('ueki.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler('ueki.log', maxBytes=100000, backupCount=1)
     handler.setLevel(DEBUG)
     app.logger.addHandler(handler)
     logger = getLogger('werkzeug')
